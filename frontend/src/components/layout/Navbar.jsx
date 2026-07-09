@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, User, Tag } from "lucide-react";
+import LoginModal from "../auth/LoginModal.jsx";
 
 export default function NavBar() {
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const navigate = useNavigate();
@@ -17,7 +19,7 @@ export default function NavBar() {
     };
     // ── Render ───────────────────────────────────────────────────
     return (
-        <nav className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 shadow-2xl sticky top-0 z-50 border-b border-slate-700/50">
+        <nav className="bg-gradient-to-r from-emerald-800 via-green-700 to-emerald-800 shadow-2xl sticky top-0 z-50 border-b border-emerald-700/50">
             <div className="px-4 sm:px-8 py-3 sm:py-4">
                 <div className="flex items-center justify-between max-w-screen-xl mx-auto gap-3">
                     {/* ── Logo ── */}
@@ -42,7 +44,7 @@ export default function NavBar() {
                             placeholder="Search products..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full px-4 py-2 rounded-full bg-slate-700 text-white placeholder-slate-400 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                            className="w-full px-4 py-2 rounded-full bg-emerald-100 text-emerald-900 placeholder-emerald-500 border border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-300"
                         />
                     </form>
                     {/* ── Right controls ── */}
@@ -59,7 +61,7 @@ export default function NavBar() {
                         {/* Sell */}
                         <Link
                             to="/sell"
-                            className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-[#1D9E75] hover:bg-[#0F6E56] text-white text-sm font-medium rounded-full transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-full transition-colors"
                         >
                             <Tag size={14} />
                             <span className="hidden sm:inline">Sell</span>
@@ -95,7 +97,7 @@ export default function NavBar() {
                 button above instantly makes this appear or disappear.
               */}
                             {userMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-slate-800/95 backdrop-blur-md shadow-2xl rounded-xl border border-slate-600 z-50 animate-in slide-in-from-top-2">
+                                <div className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-emerald-700/95 backdrop-blur-md shadow-2xl rounded-xl border border-emerald-600 z-50 animate-in slide-in-from-top-2">
                                     {/*
                     For now we always show the "not logged in" version.
                     In a future lesson we'll check real login state and
@@ -104,10 +106,10 @@ export default function NavBar() {
                                     <button
                                         onClick={() => {
                                             setUserMenuOpen(false); // close the menu first
-                                            alert("Login modal will go here!");
+                                            setIsLoginModalOpen(true); // then open the login modal
                                             // we'll replace this alert with a real modal later
                                         }}
-                                        className="block w-full text-left hover:bg-slate-700/70 px-4 py-2 cursor-pointer transition-all duration-300 text-white hover:text-emerald-400 font-medium hover:translate-x-1 rounded-t-xl"
+                                        className="block w-full text-left hover:bg-emerald-600/70 px-4 py-2 cursor-pointer transition-all duration-300 text-white hover:text-emerald-100 font-medium hover:translate-x-1 rounded-t-xl"
                                     >
                                         Login
                                     </button>
@@ -115,7 +117,7 @@ export default function NavBar() {
                                     <Link
                                         to="/register"
                                         onClick={() => setUserMenuOpen(false)}
-                                        className="block hover:bg-slate-700/70 px-4 py-2 cursor-pointer transition-all duration-300 text-white hover:text-emerald-400 hover:translate-x-1 rounded-b-xl"
+                                        className="block hover:bg-emerald-600/70 px-4 py-2 cursor-pointer transition-all duration-300 text-white hover:text-emerald-100 hover:translate-x-1 rounded-b-xl"
                                     >
                                         Register
                                     </Link>
@@ -127,6 +129,13 @@ export default function NavBar() {
                     {/* end right controls */}
                 </div>
             </div>
+            <LoginModal
+                isOpen={isLoginModalOpen}
+                onClose={() => setIsLoginModalOpen(false)}
+                onLoginSuccess={() => {
+                    setIsLoginModalOpen(false);
+                }}
+            />
         </nav>
     );
 }

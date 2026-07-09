@@ -24,20 +24,20 @@ const DATA = {
   ],
 };
 
-const ProductCard = ({title, price, emoji}) => {
+const ProductCard = ({ title, price, emoji }) => {
   return (
-    <div className="bg-white rounded-2xl border-2 border-gray-300 overflow-hidden">
-      <div className="h-40 bg-gray-100 flex items-center justify-center">
-        <span className="text-gray-400 text-5xl font-medium">
+    <div className="bg-white rounded-lg border border-emerald-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+      <div className="h-40 bg-emerald-50 flex items-center justify-center">
+        <span className="text-emerald-300 text-5xl font-medium">
           {emoji}
         </span>
       </div>
       <div className="p-4">
         <div>
-          <h3 className="font-black mb-1">
+          <h3 className="font-semibold text-gray-800 mb-1">
             {title}
           </h3>
-          <p className="text-green-400 text-lg">
+          <p className="text-emerald-600 text-lg font-medium">
             {price}
           </p>
         </div>
@@ -46,20 +46,20 @@ const ProductCard = ({title, price, emoji}) => {
   )
 }
 
-const ProductSection = ({title, accentColor, tag, products}) => {
+const ProductSection = ({ title, accentColor, tag, products }) => {
   return (
     <section className="mb-16">
       <div className="flex items-center gap-4 mb-6">
         <div
-        className="w-3 h-10 rounded-full"
-        style={{backgroundColor: accentColor}}
+          className="w-1 h-8 rounded-full"
+          style={{ backgroundColor: accentColor }}
         />
         <span
-        className="text-xs font-bold uppercase tracking-widest inline-block px-2 py-0.5 rounded-full mb-1"
+          className="text-xs font-semibold uppercase tracking-widest inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700"
         >
           {tag}
         </span>
-        <h2 className="text-2xl font-extrabold">
+        <h2 className="text-2xl font-bold text-gray-800">
           {title}
         </h2>
       </div>
@@ -80,8 +80,8 @@ const ProductSection = ({title, accentColor, tag, products}) => {
 
 const Homepage = () => {
   return (
-    <div className="min-h-screen bg-sky-200">
-      <div className="bg-gradient-to-br from-violet-700 via-indigo-700 to-sky-600 px-6 py-14 mb-12">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-green-50 to-teal-50">
+      <div className="bg-gradient-to-br from-emerald-600 via-green-600 to-teal-600 px-6 py-14 mb-12">
         <div
           className="absolute inset-0 opacity-50"
           style={{
@@ -95,38 +95,40 @@ const Homepage = () => {
           }}
         />
         <div className="container mx-auto max-w-3xl text-center">
-          <span className="inline-block bg-white/20 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4">
+          <span className="inline-block bg-white/20 text-white text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full mb-4">
             Community Marketplace
           </span>
-          <h1 className="text-4xl md:text-5xl font-black text-white leading-tight mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
             Buy, Sell &amp; Rent
             <br />
-            <span className="text-yellow-300">Anything, Anywhere</span>
+            <span className="text-emerald-100">Anything, Anywhere</span>
           </h1>
-          <p className="text-indigo-200 text-lg mb-8">
+          <p className="text-emerald-50 text-lg mb-8">
             Discover deals in your neighbourhood or list your items in seconds.
           </p>
         </div>
       </div>
-      <main>
-        <ProductSection
-          title="Recent Uploads"
-          accentColor="#7c3aed" // purple
-          tag="New"
-          products={DATA.recent}
-        />
-        <ProductSection
-          title="Nearby Products"
-          accentColor="#059669" // green
-          tag="Nearby"
-          products={DATA.nearby}
-        />
-        <ProductSection
-          title="Products For Rent"
-          accentColor="#d97706" // amber
-          tag="Rent"
-          products={DATA.rent}
-        />
+      <main className="px-6 py-12">
+        <div className="container mx-auto max-w-7xl">
+          <ProductSection
+            title="Recent Uploads"
+            accentColor="#059669" // emerald
+            tag="New"
+            products={DATA.recent}
+          />
+          <ProductSection
+            title="Nearby Products"
+            accentColor="#0d9488" // teal
+            tag="Nearby"
+            products={DATA.nearby}
+          />
+          <ProductSection
+            title="Products For Rent"
+            accentColor="#10b981" // green
+            tag="Rent"
+            products={DATA.rent}
+          />
+        </div>
       </main>
     </div>
   );
