@@ -7,6 +7,7 @@ import DemoPage from './pages/DemoPage.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { NotificationProvider } from './components/hooks/useNotification.jsx';
 import SellPage from './pages/SellPage.jsx';
+import ListingPage from './pages/ListingPage.jsx';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/sell" element={<SellPage />} />
+        <Route path="/listings/:id" element={<ListingPage />} />
       </Routes>
     </Router>
     </NotificationProvider>

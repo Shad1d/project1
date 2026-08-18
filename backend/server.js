@@ -9,7 +9,8 @@ import morgan from "morgan";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import authRoutes from "./routes/authRoutes.js";
-import listingsRoutes from "./routes/listingsRoutes.js";
+import listingRoutes from "./routes/listingRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
@@ -22,6 +23,8 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
+app.use("/api/cart", cartRoutes);
+app.use("/uploads", express.static("uploads"));
 
 // ── Security headers ───────────────────────────────────────────────────────────
 app.use(
@@ -32,7 +35,7 @@ app.use(
 );
 
 app.use("/api/auth", authRoutes);
-
+app.use("/api/listings", listingRoutes);
 const products = [
   {
     id: 1,
@@ -315,7 +318,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Something went wrong!" });
 });
 
-app.use("/api/listings", listingsRoutes);
+app.use("/api/listings", listingRoutes);
 
 await pool();
 app.listen(PORT, () => {

@@ -1,18 +1,18 @@
 import express from "express";
 
 import {
+    upload,
     createListing,
     getListingById,
     getNearbyListings,
     getListings,
-    updateListing,
     deleteListing,
-    updateListingsStatus,
+    updateListingStatus,
     getMyListings
 } from "../controllers/listingController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
-import upload from "../middleware/uploadMiddleware.js";
+
 
 const router = express.Router();
 
@@ -22,8 +22,7 @@ router.get("/my", protect, getMyListings);
 router.post("/", protect, upload.array("images", 6), createListing);
 
 router.get("/:id", protect, getListingById);
-router.patch("/:id", protect, updateListing);
-router.patch("/:id/status", protect, updateListingsStatus);
+router.patch("/:id/status", protect, updateListingStatus);
 
 router.delete("/:id", protect, deleteListing);
 
