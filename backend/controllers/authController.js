@@ -1,7 +1,13 @@
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 import User from "../models/user.js";
+
+const DUMMY_HASH = "$2a$12$e86..dummyhashforconstanttimecomparison............";
+const bcryptDummyCompare = async () => {
+    await bcrypt.compare("dummy_password", DUMMY_HASH);
+};
 
 /**
  * Signs a JWT for the given user id.
@@ -171,13 +177,14 @@ export const login = async (req, res) => {
         // ── 5. CHECK EMAIL VERIFICATION ───────────────────────────────────────
         // WHY: Unverified accounts should not be allowed to log in until they click 
         // the verification link sent to their email during registration.
-        //if (!user.isEmailVerified) {
-            // 403 Forbidden: Authenticated state attempted, but blocked due to policy
-          //  return res.status(403).json({
-              //  error: "Please verify your email address before logging in. Check your inbox or request a new verification link.",
-            //    code: "EMAIL_NOT_VERIFIED",
-            //});
-       // }
+        // if (!user.isEmailVerified) {
+        //     // 403 Forbidden: Authenticated state attempted, but blocked due to policy
+        //     return res.status(403).json({
+        //         error: "Please verify your email address before logging in. Check your inbox or request a new verification link.",
+        //         code: "EMAIL_NOT_VERIFIED",
+        //     });
+        // }
+
 
         // ── 6. CHECK ACCOUNT ACTIVE STATUS ────────────────────────────────────
         // WHY: Admins or users may deactivate accounts. Deactivated users cannot log in.
@@ -194,7 +201,8 @@ export const login = async (req, res) => {
             // Increment failed login attempt counter and lock account if limit (5) reached
             await handleFailedLogin(user);
             // Return generic 401 Unauthorized error for security
-            return res.status(401).json({ error: "Invalid password." });
+
+            return res.status(401).json({ error: "Invalid email or password." });
         }
 
         // ── 8. SUCCESSFUL LOGIN RESET & TIMESTAMP ─────────────────────────────

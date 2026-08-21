@@ -15,7 +15,7 @@ import {
 import { useAuth } from "../context/AuthContext.jsx";
 import Notification from "../components/common/Notification.jsx";
 import { useNotification } from "../components/hooks/useNotification.js";
-import {API_BASE_URL} from "../config/api.js";
+import { API_BASE_URL } from "../config/api.js";
 
 const CATEGORIES = [
   "Electronics & Gadgets",
@@ -33,10 +33,10 @@ const CATEGORIES = [
 ];
 
 const CONDITIONS = [
-  { 
-    value: "new", 
-    label: "New", 
-    desc: "Never used, original packaging" 
+  {
+    value: "new",
+    label: "New",
+    desc: "Never used, original packaging",
   },
   {
     value: "like_new",
@@ -48,15 +48,15 @@ const CONDITIONS = [
     label: "Good",
     desc: "Minor signs of use, fully functional",
   },
-  { 
-    value: "fair", 
-    label: "Fair", 
-    desc: "Visible wear, works as expected" 
+  {
+    value: "fair",
+    label: "Fair",
+    desc: "Visible wear, works as expected",
   },
-  { 
-    value: "poor", 
-    label: "For parts", 
-    desc: "Damaged or incomplete" 
+  {
+    value: "poor",
+    label: "For parts",
+    desc: "Damaged or incomplete",
   },
 ];
 

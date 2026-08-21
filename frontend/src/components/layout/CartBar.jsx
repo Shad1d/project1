@@ -407,7 +407,7 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
 
                   {/* Line subtotal */}
                   <p className="text-xs text-gray-400 mt-0.5">
-                    Subtotal: ${itemSubtotal(item).toLocaleString()}
+                    Subtotal: ৳{itemSubtotal(item).toLocaleString()}
                   </p>
                 </div>
 
@@ -429,7 +429,7 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
             <div className="space-y-2 mb-6">
               <div className="flex justify-between text-gray-600 font-medium">
                 <span>Estimated Total</span>
-                <span>${estimatedTotal.toLocaleString()}</span>
+                <span>৳{estimatedTotal.toLocaleString()}</span>
               </div>
             </div>
 

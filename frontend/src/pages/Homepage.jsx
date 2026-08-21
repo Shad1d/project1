@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import ProductCard, {
   ProductCardSkeleton,
 } from "../components/layout/ProductCard";
-// import CartBar from "../components/layout/CartBar.jsx";
+import CartBar from "../components/layout/CartBar.jsx";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../config/api";
@@ -314,7 +314,7 @@ const HomePage = () => {
   ];
 
   return (
-    // <CartBar ref={cartRef}>
+    <CartBar ref={cartRef}>
       <div className="min-h-screen bg-gray-50">
         {/* Hero Banner */}
         <div className="relative overflow-hidden bg-gradient-to-br from-violet-700 via-indigo-700 to-sky-600 px-6 py-14 mb-12">
@@ -368,7 +368,7 @@ const HomePage = () => {
           }
         `}</style>
       </div>
-    // </CartBar>
+    </CartBar>
   );
 };
 

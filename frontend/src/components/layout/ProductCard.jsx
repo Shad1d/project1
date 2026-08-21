@@ -68,13 +68,13 @@ const ProductCard = ({
   const resolvePrice = () => {
     if (product?.listingType === "rent") {
       return product.rentPricePerDay != null
-        ? `$${Number(product.rentPricePerDay).toLocaleString()}/day`
+        ? `৳${Number(product.rentPricePerDay).toLocaleString()}/day`
         : (product.price ?? "—");
     }
     if (product?.price != null) {
       // If price is already a formatted string (legacy), return as-is
       return typeof product.price === "number"
-        ? `$${Number(product.price).toLocaleString()}`
+        ? `৳${Number(product.price).toLocaleString()}`
         : product.price;
     }
     return "—";
@@ -179,7 +179,10 @@ const ProductCard = ({
       setIsLiked(!isLiked);
     } catch (error) {
       console.error("Wishlist toggle failed:", error);
-      showError("Wishlist Error", error?.message || "Failed to update wishlist.");
+      showError(
+        "Wishlist Error",
+        error?.message || "Failed to update wishlist.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -217,6 +220,10 @@ const ProductCard = ({
           src={resolveImage()}
           alt={product?.name || product?.title || "Product"}
           onClick={handleProductClick}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "https://placehold.co/600x400?text=No+Image";
+          }}
           className={`w-full ${imageHeight} object-cover cursor-pointer hover:scale-110 transition-transform duration-500`}
           loading="lazy"
         />

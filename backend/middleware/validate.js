@@ -4,6 +4,8 @@
 const clean = (val) =>
     typeof val === "string" ? val.trim().replace(/\0/g, "") : val;
 
+
+
 /**
  * POST /api/auth/register
  */
@@ -69,19 +71,6 @@ export const validateRegister = (req, res, next) => {
 
     // Attach sanitised values so the controller doesn't have to repeat this
     req.sanitised = { firstName, lastName, email, password, phoneNumber, address, location };
-    next();
-};
-
-/**
- * GET /api/auth/check-email/:email
- */
-export const validateCheckEmail = (req, res, next) => {
-    const email = decodeURIComponent(req.params.email || "").toLowerCase().trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-        return res.status(400).json({ error: "Invalid email address" });
-    }
-    req.sanitisedEmail = email;
     next();
 };
 

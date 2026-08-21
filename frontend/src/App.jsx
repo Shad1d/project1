@@ -8,6 +8,7 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import { NotificationProvider } from './components/hooks/useNotification.jsx';
 import SellPage from './pages/SellPage.jsx';
 import ListingPage from './pages/ListingPage.jsx';
+import Checkout from './pages/Checkout.jsx';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/sell" element={<SellPage />} />
         <Route path="/listings/:id" element={<ListingPage />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </Router>
     </NotificationProvider>
