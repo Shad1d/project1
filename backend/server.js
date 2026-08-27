@@ -12,16 +12,48 @@ import authRoutes from "./routes/authRoutes.js";
 import listingsRoutes from "./routes/listingRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import conversationRoutes from "./routes/conversationRoutes.js";
+import { initSocket } from "./socket/index.js";
+import http from "http";
+import rateLimit from "express-rate-limit";
+import mongoSanitize from "express-mongo-sanitize";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dns.setServers(["8.8.8.8", "1.1.1.1"])
 const app = express();
+app.set("trust proxy", 1); // trust first proxy (for rate limiting behind a reverse proxy)
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(express.json());
+const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+const originSources = process.env.ALLOWED_ORIGINS || clientUrl;
+const allowedOrigins = originSources
+    ? originSources.split(",").map((o) => o.trim())
+    : [];
+
+app.use(
+    cors({
+        origin: (origin, cb) => {
+            // Allow requests with no origin (e.g. mobile apps, Postman in dev)
+            if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+            cb(new Error(`CORS: origin ${origin} not allowed`));
+        },
+        credentials: true,
+    })
+);
+app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+
+// ── MongoDB query injection sanitiser ─────────────────────────────────────────
+// Strips $ and . from user-supplied data before it reaches Mongoose
+// currently not sanitizing query params, but can be added if needed
+app.use((req, res, next) => {
+    mongoSanitize.sanitize(req.body);
+    mongoSanitize.sanitize(req.params);
+    next();
+});
+
 // Serve static uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Fallback for missing uploaded files (e.g. legacy/deleted listings)
@@ -50,6 +82,25 @@ if (process.env.NODE_ENV !== "test") {
     app.use(morgan("dev"));
 }
 
+// ── MongoDB query injection sanitiser ─────────────────────────────────────────
+// Strips $ and . from user-supplied data before it reaches Mongoose
+// currently not sanitizing query params, but can be added if needed
+app.use((req, res, next) => {
+    mongoSanitize.sanitize(req.body);
+    mongoSanitize.sanitize(req.params);
+    next();
+});
+// ── Global rate limiter (fallback) ─────────────────────────────────────────────
+app.use(
+    rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 2000,
+        message: { error: "Too many requests from this IP, please try again later." },
+        standardHeaders: true,
+        legacyHeaders: false,
+    })
+);
+
 app.get("/", (req, res) => {
     res.send("Server is running!");
 });
@@ -67,9 +118,15 @@ app.use("/api/auth", authRoutes);
 app.use("/api/listings", listingsRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/conversations", conversationRoutes);
 app.use("/uploads", express.static("uploads"));
 
-await pool()
-app.listen(PORT, () => {
-    console.log(`Server is running on port:${PORT}`);
+const httpServer = http.createServer(app);
+
+const io = initSocket(httpServer);
+app.set("io", io); // so controllers can emit events
+
+await pool(); // initialize database connection
+httpServer.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
