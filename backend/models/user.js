@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema(
             unique: true,
             lowercase: true,
             trim: true,
+            immutable: true, // Database-level protection: email cannot be changed once created
             match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Please enter a valid email address"],
         },
         password: {
@@ -41,6 +42,7 @@ const userSchema = new mongoose.Schema(
             trim: true,
             maxlength: [300, "Address cannot exceed 300 characters"],
         },
+        // GeoJSON point — enables geospatial queries later (e.g. nearby listings)
         location: {
             type: {
                 type: String,
@@ -60,11 +62,14 @@ const userSchema = new mongoose.Schema(
                 },
             },
         },
+
         role: {
             type: String,
             enum: ["user", "admin"],
             default: "user",
         },
+
+        // ── Email verification ────────────────────────────────────────────────────
         isEmailVerified: {
             type: Boolean,
             default: false,
@@ -77,16 +82,21 @@ const userSchema = new mongoose.Schema(
             type: Date,
             select: false,
         },
+
+        // ── Account status ────────────────────────────────────────────────────────
         isActive: {
             type: Boolean,
             default: true,
         },
-        // wishlist: [
-        //     {
-        //         type: mongoose.Schema.Types.ObjectId,
-        //         ref: "Listing",
-        //     },
-        // ],
+
+        wishlist: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Listing",
+            },
+        ],
+
+        // ── Login tracking (for security auditing) ────────────────────────────────
         lastLogin: {
             type: Date,
         },
@@ -101,7 +111,7 @@ const userSchema = new mongoose.Schema(
         },
     },
     {
-    timestamps: true, // adds createdAt and updatedAt
+        timestamps: true, // adds createdAt and updatedAt
     }
 );
 
@@ -147,9 +157,9 @@ userSchema.methods.toSafeObject = function () {
         role: this.role,
         isEmailVerified: this.isEmailVerified,
         isActive: this.isActive,
-        // wishlist: Array.isArray(this.wishlist)
-        //     ? this.wishlist.map((item) => item?._id?.toString?.() || item.toString())
-        //     : [],
+        wishlist: Array.isArray(this.wishlist)
+            ? this.wishlist.map((item) => item?._id?.toString?.() || item.toString())
+            : [],
         lastLogin: this.lastLogin,
         createdAt: this.createdAt,
     };

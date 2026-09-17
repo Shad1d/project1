@@ -38,10 +38,9 @@ function appendSystemMessage(conversation, statusEvent, text) {
 // Can also be called safely more than once (idempotent).
 // ─────────────────────────────────────────────────────────────────────────────
 export async function initConversation(orderId) {
-    try {
-        const order = await Order.findById(orderId)
-            .populate("buyer", "firstName lastName")
-            .populate("seller", "firstName lastName");
+    const order = await Order.findById(orderId)
+        .populate("buyer", "firstName lastName")
+        .populate("seller", "firstName lastName");
 
     if (!order) throw new Error("Order not found for conversation init.");
 
@@ -80,11 +79,7 @@ export async function initConversation(orderId) {
     }
 
     await convo.save();
-    return convo; }
-    catch (err) {
-        console.error("initConversation error:", err);
-        return res.status(500).json({ error: "Failed to initialize conversation." });
-    }
+    return convo;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

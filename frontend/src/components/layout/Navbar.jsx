@@ -169,31 +169,41 @@ export default function NavBar() {
           </div>
         ) : searchResults.length > 0 ? (
           <>
-            {searchResults.map((product, index) => (
-              <div
-                key={product.id}
-                className="flex items-center p-3 hover:bg-slate-700/70 cursor-pointer border-b border-slate-700 last:border-b-0 transition-all duration-300 hover:translate-x-1 animate-in slide-in-from-left-1"
-                style={{ animationDelay: `${index * 50}ms` }}
-                onClick={() => handleProductClick(product.id)}
-              >
-                <img
-                  src={product.image_url || "/default-product.png"}
-                  alt={product.name}
-                  className="w-12 h-12 object-cover rounded-lg mr-3 transition-transform duration-300 hover:scale-110"
-                />
-                <div className="flex-1">
-                  <div className="font-medium text-white text-sm">
-                    {product.name}
-                  </div>
-                  <div className="text-xs text-slate-400">
-                    {product.category_name || "Uncategorized"}
-                  </div>
-                  <div className="text-sm font-semibold text-emerald-400">
-                    ৳{parseFloat(product.price)?.toFixed(2) || "N/A"}
+            {searchResults.map((product, index) => {
+              const productId = product._id || product.id;
+              const title = product.title || product.name || "Untitled Item";
+              const category = product.category || product.category_name || "Uncategorized";
+              const price = product.price ?? product.rentPricePerDay;
+              const imgUrl = product.images?.[0]?.url
+                ? (product.images[0].url.startsWith("http") ? product.images[0].url : `${API_BASE_URL}${product.images[0].url}`)
+                : product.image_url || "https://placehold.co/100x100?text=Item";
+
+              return (
+                <div
+                  key={productId || index}
+                  className="flex items-center p-3 hover:bg-slate-700/70 cursor-pointer border-b border-slate-700 last:border-b-0 transition-all duration-300 hover:translate-x-1 animate-in slide-in-from-left-1"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                  onClick={() => handleProductClick(productId)}
+                >
+                  <img
+                    src={imgUrl}
+                    alt={title}
+                    className="w-12 h-12 object-cover rounded-lg mr-3 transition-transform duration-300 hover:scale-110"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-white text-sm line-clamp-1">
+                      {title}
+                    </div>
+                    <div className="text-xs text-slate-400">
+                      {category}
+                    </div>
+                    <div className="text-sm font-semibold text-emerald-400">
+                      {price != null ? `$${parseFloat(price).toFixed(2)}` : "—"}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {searchTerm && (
               <div
                 className="p-3 text-center text-emerald-400 hover:bg-slate-700/70 cursor-pointer border-t border-slate-700 font-medium transition-all duration-300 hover:text-emerald-300"

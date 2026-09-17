@@ -1,1 +1,1 @@
-export {NotificationProvider, useNotification, default} from './useNotification.jsx';
+export { NotificationProvider, useNotification, default } from './useNotification.jsx';

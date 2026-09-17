@@ -99,7 +99,7 @@ export function initSocket(httpServer) {
 
         // ── Disconnect ────────────────────────────────────────────────────────
         socket.on("disconnect", () => {
-            // Notify all order rooms this user was in that they went offline
+            // Broadcast offline to all order rooms this socket was in
             [...socket.rooms].forEach((room) => {
                 if (room.startsWith("order:")) {
                     socket.to(room).emit("user_offline", { userId });

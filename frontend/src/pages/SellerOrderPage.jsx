@@ -26,11 +26,11 @@ import { useNotification } from "../components/hooks/useNotification.js";
 import { API_BASE_URL } from "../config/api.js";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const fmt = (n) => `৳${Number(n || 0).toLocaleString("en-BD")}`;
+const fmt = (n) => `$${Number(n || 0).toLocaleString("en-US")}`;
 
 function formatDate(dateStr) {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-BD", {
+  return new Date(dateStr).toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",

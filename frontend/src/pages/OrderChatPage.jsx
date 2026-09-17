@@ -36,16 +36,16 @@ import { useNotification } from "../components/hooks/useNotification.js";
 import { API_BASE_URL, SOCKET_URL } from "../config/api.js";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const fmt = (n) => `৳${Number(n || 0).toLocaleString("en-BD")}`;
+const fmt = (n) => `$${Number(n || 0).toLocaleString("en-US")}`;
 
 function formatTime(dateStr) {
   if (!dateStr) return "";
   const d = new Date(dateStr);
-  return d.toLocaleTimeString("en-BD", { hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 }
 function formatDate(dateStr) {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-BD", {
+  return new Date(dateStr).toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -58,7 +58,7 @@ function formatDateLabel(dateStr) {
   yesterday.setDate(today.getDate() - 1);
   if (d.toDateString() === today.toDateString()) return "Today";
   if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
-  return d.toLocaleDateString("en-BD", {
+  return d.toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",

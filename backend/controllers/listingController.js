@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import multer from "multer";
 import Listing from "../models/listing.js";
 import User from "../models/user.js";
+import { supabase, BUCKET_NAME } from "../config/supabase.js";
 import {
     parseQueryIntent,
     calculateRelevanceScore,
@@ -14,17 +15,11 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ── Multer storage ────────────────────────────────────────────────────────────
+// ── Multer storage (Memory storage for direct Supabase cloud upload) ───────────
 const uploadsDir = path.join(__dirname, "../uploads/listings");
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
-const storage = multer.diskStorage({
-    destination: (_req, _file, cb) => cb(null, uploadsDir),
-    filename: (_req, file, cb) => {
-        const ext = path.extname(file.originalname).toLowerCase();
-        cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-    },
-});
+const storage = multer.memoryStorage();
 
 const fileFilter = (_req, file, cb) => {
     const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -94,11 +89,35 @@ export const createListing = async (req, res) => {
             });
         }
 
-        // ── Build image array ───────────────────────────────────────────────────
-        const images = req.files.map((f) => ({
-            url: `/uploads/listings/${f.filename}`,
-            filename: f.filename,
-        }));
+        // ── Upload images to Supabase Storage ──────────────────────────────────
+        const images = await Promise.all(
+            req.files.map(async (file) => {
+                const ext = path.extname(file.originalname).toLowerCase();
+                const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
+                const filePath = `listings/${uniqueName}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from(BUCKET_NAME)
+                    .upload(filePath, file.buffer, {
+                        contentType: file.mimetype,
+                        upsert: false,
+                    });
+
+                if (uploadError) {
+                    console.error("Supabase storage upload error:", uploadError);
+                    throw new Error(`Failed to upload image to Supabase: ${uploadError.message}`);
+                }
+
+                const { data: publicUrlData } = supabase.storage
+                    .from(BUCKET_NAME)
+                    .getPublicUrl(filePath);
+
+                return {
+                    url: publicUrlData.publicUrl,
+                    filename: filePath,
+                };
+            })
+        );
 
         // ── Create document ─────────────────────────────────────────────────────
         const listing = await Listing.create({
@@ -580,9 +599,22 @@ export const deleteListing = async (req, res) => {
             return res.status(403).json({ error: "Not authorised." });
         }
 
-        listing.images.forEach(({ filename }) => {
-            if (filename) fs.unlink(path.join(uploadsDir, filename), () => { });
-        });
+        // Delete images from Supabase Storage and/or local disk
+        if (listing.images && listing.images.length > 0) {
+            const supabaseFiles = [];
+            for (const { filename } of listing.images) {
+                if (!filename) continue;
+                if (filename.startsWith("listings/")) {
+                    supabaseFiles.push(filename);
+                } else {
+                    // Fallback cleanup for any legacy local uploads
+                    fs.unlink(path.join(uploadsDir, filename), () => { });
+                }
+            }
+            if (supabaseFiles.length > 0) {
+                await supabase.storage.from(BUCKET_NAME).remove(supabaseFiles);
+            }
+        }
 
         await listing.deleteOne();
         res.json({ message: "Listing deleted." });

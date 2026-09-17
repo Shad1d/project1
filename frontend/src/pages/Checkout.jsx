@@ -45,9 +45,9 @@ function itemPriceLabel(item) {
 
 const PAYMENT_OPTIONS = [
   { value: "cod", label: "Cash on Delivery" },
-  //{ value: "mobile_banking", label: "Mobile Banking (bKash / Nagad)" },
-  //{ value: "bank_transfer", label: "Bank Transfer" },
-  //{ value: "cash_pickup", label: "Cash on Pickup" },
+  { value: "mobile_banking", label: "Mobile Banking (bKash / Nagad)" },
+  { value: "bank_transfer", label: "Bank Transfer" },
+  { value: "cash_pickup", label: "Cash on Pickup" },
 ];
 
 const DELIVERY_OPTIONS = [

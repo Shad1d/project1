@@ -264,5 +264,3 @@ const Notification = ({ show, type = "success", title, message, onClose }) => {
 };
 
 export default Notification;
-
-

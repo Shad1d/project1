@@ -1,14 +1,12 @@
 export function Button({ children, variant, className = "", ...props }) {
   const getVariantStyles = (variant) => {
     switch (variant) {
-      case "outline":
-        return "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50";
-      case "ghost":
-        return "bg-transparent text-gray-700 hover:bg-gray-100";
-      case "link":
-        return "bg-transparent text-blue-500 hover:underline";
+      case 'outline':
+        return 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50';
+      case 'ghost':
+        return 'bg-transparent text-gray-700 hover:bg-gray-100';
       default:
-        return "bg-blue-500 text-white hover:bg-blue-600";
+        return 'bg-blue-500 text-white hover:bg-blue-600';
     }
   };
 
@@ -17,7 +15,10 @@ export function Button({ children, variant, className = "", ...props }) {
   const finalClasses = `${baseClasses} ${variantClasses} ${className}`;
 
   return (
-    <button className={finalClasses} {...props}>
+    <button 
+      className={finalClasses}
+      {...props}
+    >
       {children}
     </button>
   );

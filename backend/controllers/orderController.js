@@ -3,7 +3,7 @@ import Order from "../models/order.js";
 import Listing from "../models/listing.js";
 import Cart from "../models/cart.js";
 import User from "../models/user.js";
-// import { initConversation } from "./conversationController.js";
+import { initConversation } from "./conversationController.js";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -177,12 +177,12 @@ export async function createOrder(req, res) {
         await session.commitTransaction();
 
         // ── Auto-create conversation thread ──────────────────────────────────
-        //try {
-        //    await initConversation(order._id);
-        //} catch (convErr) {
-        //    // Non-fatal: order is saved; log and continue
-        //    console.error("initConversation error:", convErr);
-        //}
+        try {
+            await initConversation(order._id);
+        } catch (convErr) {
+            // Non-fatal: order is saved; log and continue
+            console.error("initConversation error:", convErr);
+        }
 
         // Populate for response
         await order.populate("buyer", "firstName lastName email phoneNumber");
@@ -333,12 +333,12 @@ export async function createOrderFromCart(req, res) {
         cart.items = cart.items.filter((i) => i.listing.toString() !== listingId);
         await cart.save({ session });
 
-        //await session.commitTransaction();
-        //try {
-        //    await initConversation(order._id);
-        //} catch (convErr) {
-        //    console.error("initConversation error:", convErr);
-        //}
+        await session.commitTransaction();
+        try {
+            await initConversation(order._id);
+        } catch (convErr) {
+            console.error("initConversation error:", convErr);
+        }
 
         await order.populate("buyer", "firstName lastName email phoneNumber");
         await order.populate("seller", "firstName lastName email phoneNumber");

@@ -1,10 +1,10 @@
 import {
-  createContext, // Creates a global storage area which any component can access.
-  useContext, // Allows components to read the global storage area.
-  useEffect, // Runs code when the component loads or dependencies change.
-  useMemo, // caches values to avoid unnecessary object creation.
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
   useState,
-  useCallback, // Caches functions
+  useCallback,
 } from "react";
 import { API_BASE_URL } from "../config/api.js";
 
@@ -12,16 +12,11 @@ import { API_BASE_URL } from "../config/api.js";
 // It reads/writes localStorage to keep the user logged in after refresh.
 const AuthContext = createContext(null);
 
-// This is the component that wraps your application.
 export function AuthProvider({ children }) {
   // `user` is the logged-in user object (or null if logged out).
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  // `isHydrating` is true while we check localStorage for a saved token.
-  // This prevents the app from rendering before we know if the user is logged in.
-  // This is important for security and to avoid flickering UI.
   const [isHydrating, setIsHydrating] = useState(true);
-  // Persist user data to localStorage and update state.
 
   const persistUser = useCallback((nextUser) => {
     setUser(nextUser);
@@ -100,42 +95,3 @@ export function useAuth() {
   }
   return context;
 }
-
-
-
-//           App Starts
-//                │
-//                ▼
-//           <AuthProvider>
-//                │
-//                ▼
-//           Read token from localStorage
-//                │
-//                ▼
-//           Token exists?
-//            ┌──────────────┐
-//            │              │
-//           No             Yes
-//            │              │
-//            ▼              ▼
-//           Show logged   Call /api/auth/me
-//           out state         │
-//                             ▼
-//                     Token valid?
-//                     ┌─────────────┐
-//                     │             │
-//                    Yes            No
-//                     │             │
-//                     ▼             ▼
-//            Restore user      Clear storage
-//            Restore token     Logout
-//                     │
-//                     ▼
-//           isHydrating = false
-//                     │
-//                     ▼
-//           Components call useAuth()
-//                     │
-//                     ▼
-//           Navbar, Profile, Cart, etc.
-            

@@ -1,10 +1,14 @@
 /**
+ * Server-side validation middleware.
+ * Always validate on the server even if the frontend already does it —
+ * frontend validation can be bypassed.
+ */
+
+/**
  * Sanitises a string: trims whitespace and removes null bytes.
  */
 const clean = (val) =>
     typeof val === "string" ? val.trim().replace(/\0/g, "") : val;
-
-
 
 /**
  * POST /api/auth/register
@@ -99,5 +103,18 @@ export const validateLogin = (req, res, next) => {
     }
 
     req.sanitised = { email, password };
+    next();
+};
+
+/**
+ * GET /api/auth/check-email/:email
+ */
+export const validateCheckEmail = (req, res, next) => {
+    const email = decodeURIComponent(req.params.email || "").toLowerCase().trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+        return res.status(400).json({ error: "Invalid email address" });
+    }
+    req.sanitisedEmail = email;
     next();
 };

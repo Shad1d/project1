@@ -13,9 +13,11 @@ import { API_BASE_URL } from "../../config/api.js";
 import { Button } from "../ui/button.jsx";
 import { Input } from "../ui/input.jsx";
 import { useAuth } from "../../context/AuthContext.jsx"; // Import useAuth
+import { useNotification } from "../hooks/useNotification.js";
 
 const LoginModal = ({ isOpen, onClose, onLoginSuccess, currentPath }) => {
   const { login } = useAuth(); // Use the global login function
+  const { showSuccess, showError } = useNotification();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -68,6 +70,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess, currentPath }) => {
         login(data.user, data.token);
 
         setSuccess("Login successful! Redirecting...");
+        showSuccess("Welcome Back! 👋", `Logged in as ${data.user.email}`);
 
         // Dispatch custom event for other components to listen to
         window.dispatchEvent(new Event("userLoggedIn"));

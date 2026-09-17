@@ -1,5 +1,19 @@
 import mongoose from "mongoose";
 
+/**
+ * Order
+ * ─────
+ * Represents a single transaction request between a buyer and a seller.
+ * One order = one listing (we keep things simple; multi-item orders
+ * are composed of multiple Order documents).
+ *
+ * Lifecycle:
+ *   requested → accepted → delivered → completed
+ *           ↘ rejected
+ *           ↘ cancelled  (by buyer or seller before delivery)
+ *           ↘ disputed   (after delivery, before completion)
+ */
+
 // ── Status history entry (audit log) ─────────────────────────────────────────
 const statusEventSchema = new mongoose.Schema(
     {
@@ -52,6 +66,9 @@ const orderSchema = new mongoose.Schema(
             index: true,
         },
 
+        // ── Snapshot of listing at order time ─────────────────────────────────
+        // Keeps the order record self-contained even if the listing is later
+        // edited, archived, or deleted.
         snapshot: {
             title: { type: String, required: true },
             listingType: { type: String, enum: ["sell", "rent"], required: true },
@@ -94,7 +111,7 @@ const orderSchema = new mongoose.Schema(
         paymentMethod: {
             type: String,
             enum: ["cod", "mobile_banking", "bank_transfer", "cash_pickup"],
-            // Currently only cash and delivery are supported. Other methods are a work in progress.
+            // not required at order creation — buyer/seller negotiate
         },
 
         // ── Delivery / meetup ─────────────────────────────────────────────────
@@ -119,7 +136,7 @@ const orderSchema = new mongoose.Schema(
             maxlength: 1000,
         },
 
-// ── Status ────────────────────────────────────────────────────────────
+        // ── Status ────────────────────────────────────────────────────────────
         status: {
             type: String,
             enum: [
@@ -168,5 +185,8 @@ const orderSchema = new mongoose.Schema(
 orderSchema.index({ buyer: 1, status: 1, createdAt: -1 });
 orderSchema.index({ seller: 1, status: 1, createdAt: -1 });
 
+// ── Pre-save: keep statusHistory in sync ──────────────────────────────────────
+// When `status` is modified we append an entry automatically via the
+// controller (we don't do it here because we need the acting userId).
 
 export default mongoose.model("Order", orderSchema);

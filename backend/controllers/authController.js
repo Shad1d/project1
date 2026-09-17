@@ -465,6 +465,136 @@ export const removeFromWishlist = async (req, res) => {
     }
 };
 
+/**
+ * PUT /api/auth/profile
+ *
+ * Updates the authenticated user's profile:
+ * firstName, lastName, phoneNumber, address, location
+ */
+export const updateProfile = async (req, res) => {
+    try {
+        const { firstName, lastName, phoneNumber, address, location } = req.body;
+        const user = req.user;
+
+        // Security safeguard: Email address can NEVER be modified
+        if (req.body.email !== undefined && req.body.email.toLowerCase().trim() !== user.email.toLowerCase()) {
+            return res.status(400).json({ error: "Email address cannot be changed." });
+        }
+
+        if (firstName !== undefined) {
+            const trimmed = String(firstName).trim();
+            if (!trimmed) {
+                return res.status(400).json({ error: "First name cannot be empty." });
+            }
+            if (trimmed.length > 50) {
+                return res.status(400).json({ error: "First name cannot exceed 50 characters." });
+            }
+            user.firstName = trimmed;
+        }
+
+        if (lastName !== undefined) {
+            const trimmed = String(lastName).trim();
+            if (!trimmed) {
+                return res.status(400).json({ error: "Last name cannot be empty." });
+            }
+            if (trimmed.length > 50) {
+                return res.status(400).json({ error: "Last name cannot exceed 50 characters." });
+            }
+            user.lastName = trimmed;
+        }
+
+        if (phoneNumber !== undefined) {
+            const trimmed = String(phoneNumber).trim();
+            if (!trimmed) {
+                return res.status(400).json({ error: "Phone number cannot be empty." });
+            }
+            const phoneRegex = /^[0-9+\-\s()]{7,20}$/;
+            if (!phoneRegex.test(trimmed)) {
+                return res.status(400).json({ error: "Please enter a valid phone number." });
+            }
+            user.phoneNumber = trimmed;
+        }
+
+        if (address !== undefined) {
+            const trimmed = String(address).trim();
+            if (!trimmed) {
+                return res.status(400).json({ error: "Address cannot be empty." });
+            }
+            if (trimmed.length > 300) {
+                return res.status(400).json({ error: "Address cannot exceed 300 characters." });
+            }
+            user.address = trimmed;
+        }
+
+        if (location) {
+            let lng, lat;
+            if (Array.isArray(location.coordinates) && location.coordinates.length === 2) {
+                [lng, lat] = location.coordinates.map(Number);
+            } else if (location.lat !== undefined && location.lng !== undefined) {
+                lat = parseFloat(location.lat);
+                lng = parseFloat(location.lng);
+            }
+
+            if (!isNaN(lat) && !isNaN(lng)) {
+                if (lng < -180 || lng > 180 || lat < -90 || lat > 90) {
+                    return res.status(400).json({ error: "Invalid location coordinates." });
+                }
+                user.location = {
+                    type: "Point",
+                    coordinates: [lng, lat],
+                };
+            }
+        }
+
+        await user.save();
+
+        return res.status(200).json({
+            message: "Profile updated successfully.",
+            user: user.toSafeObject(),
+        });
+    } catch (error) {
+        console.error("updateProfile error:", error);
+        return res.status(500).json({ error: "Failed to update profile. Please try again." });
+    }
+};
+
+/**
+ * PUT /api/auth/change-password
+ *
+ * Verifies current password and sets a new password.
+ */
+export const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ error: "Current and new password are required." });
+        }
+
+        if (newPassword.length < 8) {
+            return res.status(400).json({ error: "New password must be at least 8 characters long." });
+        }
+
+        const user = await User.findById(req.user._id).select("+password");
+        if (!user) {
+            return res.status(404).json({ error: "User not found." });
+        }
+
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
+            return res.status(400).json({ error: "Incorrect current password." });
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        return res.status(200).json({ message: "Password updated successfully." });
+    } catch (error) {
+        console.error("changePassword error:", error);
+        return res.status(500).json({ error: "Failed to update password. Please try again." });
+    }
+};
+
 // ── Private helpers ────────────────────────────────────────────────────────────
 
 /**

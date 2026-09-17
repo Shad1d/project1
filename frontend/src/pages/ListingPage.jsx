@@ -68,7 +68,7 @@ function ListingCard({ listing, onDelete, onStatusChange, actionLoading }) {
   const isLoading = actionLoading === listing._id;
 
   return (
-    <div className="flex flex-col rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow bg-white">
+    <div className="flex flex-col rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow bg-white h-full">
       {/* ── Display section: reuse ProductCard in view-only mode ── */}
       <ProductCard
         product={listing}
@@ -218,10 +218,7 @@ export default function MyListingsPage() {
         setTotal((prev) => prev - 1);
         showSuccess("Listing Deleted", "The listing was successfully removed.");
       } catch (err) {
-        showError(
-          "Delete Failed",
-          err.message || "Could not delete listing. Please try again.",
-        );
+        showError("Delete Failed", err.message || "Could not delete listing. Please try again.");
       } finally {
         setActionLoading(null);
       }
@@ -248,10 +245,7 @@ export default function MyListingsPage() {
         );
         showSuccess("Status Updated", `Listing status changed to ${status}.`);
       } catch (err) {
-        showError(
-          "Update Failed",
-          err.message || "Could not update status. Please try again.",
-        );
+        showError("Update Failed", err.message || "Could not update status. Please try again.");
       } finally {
         setActionLoading(null);
       }

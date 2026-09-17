@@ -188,7 +188,7 @@ const ProductSection = ({
             {visibleProducts.map((product, idx) => (
               <div
                 key={`${product._id || product.id}-${offset}-${idx}`}
-                className="animate-fadeSlide"
+                className="animate-fadeSlide h-full"
                 style={{ animationDelay: `${idx * 40}ms` }}
               >
                 <ProductCard
