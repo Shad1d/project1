@@ -1,13 +1,11 @@
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+import Listing from "../models/listing.js";
 import User from "../models/user.js";
+import { sendVerificationEmail } from "../utils/sendEmail.js";
 
-const DUMMY_HASH = "$2a$12$e86..dummyhashforconstanttimecomparison............";
-const bcryptDummyCompare = async () => {
-    await bcrypt.compare("dummy_password", DUMMY_HASH);
-};
+// ── Helpers ────────────────────────────────────────────────────────────────────
 
 /**
  * Signs a JWT for the given user id.
@@ -18,16 +16,27 @@ const signToken = (userId) =>
     });
 
 /**
-* Generates a secure random hex token and its SHA-256 hash.
-* The raw token goes in the email link; only the hash is stored in the DB
-* so that if the DB is compromised the tokens can't be used.
-*/
+ * Generates a secure random hex token and its SHA-256 hash.
+ * The raw token goes in the email link; only the hash is stored in the DB
+ * so that if the DB is compromised the tokens can't be used.
+ */
 const generateVerificationToken = () => {
     const rawToken = crypto.randomBytes(32).toString("hex");
     const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
     return { rawToken, hashedToken };
 };
 
+// ── Controllers ────────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/auth/register
+ *
+ * 1. Check if email already exists
+ * 2. Create user (password hashed via pre-save hook in User model)
+ * 3. Generate email-verification token
+ * 4. Send verification email
+ * 5. Return success (do NOT log the user in yet — require email verification)
+ */
 export const register = async (req, res) => {
     try {
         const { firstName, lastName, email, password, phoneNumber, address, location } =
@@ -67,14 +76,14 @@ export const register = async (req, res) => {
         const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
         const verifyUrl = `${clientUrl}/verify-email?token=${rawToken}`;
 
-        // try {
-        //     await sendVerificationEmail(email, firstName, verifyUrl);
-        // } catch (emailError) {
-        //     // Email sending failed — user is created but not yet verified.
-        //     // We still respond with success and tell the user to check their email.
-        //     // Log the error server-side.
-        //     console.error("Failed to send verification email:", emailError.message);
-        // }
+        try {
+            await sendVerificationEmail(email, firstName, verifyUrl);
+        } catch (emailError) {
+            // Email sending failed — user is created but not yet verified.
+            // We still respond with success and tell the user to check their email.
+            // Log the error server-side.
+            console.error("Failed to send verification email:", emailError.message);
+        }
 
         // ── Respond ───────────────────────────────────────────────────────────
         return res.status(201).json({
@@ -103,6 +112,109 @@ export const register = async (req, res) => {
     }
 };
 
+/**
+ * GET /api/auth/verify-email?token=<rawToken>
+ *
+ * Validates the token, marks the user as verified, and issues a JWT
+ * so the user is logged in immediately after verifying.
+ */
+export const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.query;
+
+        if (!token) {
+            return res.status(400).json({ error: "Verification token is missing" });
+        }
+
+        // Hash the incoming raw token and look it up
+        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+        const user = await User.findOne({
+            emailVerificationToken: hashedToken,
+            emailVerificationTokenExpires: { $gt: Date.now() }, // not expired
+        }).select("+emailVerificationToken +emailVerificationTokenExpires");
+
+        if (!user) {
+            return res.status(400).json({
+                error: "Verification link is invalid or has expired. Please request a new one.",
+            });
+        }
+
+        // Mark user as verified and clear the token fields
+        user.isEmailVerified = true;
+        user.emailVerificationToken = undefined;
+        user.emailVerificationTokenExpires = undefined;
+        user.lastLogin = new Date();
+        await user.save();
+
+        // Issue JWT — user is now logged in
+        const jwtToken = signToken(user._id);
+
+        return res.status(200).json({
+            message: "Email verified successfully! Welcome to GrocCart.",
+            token: jwtToken,
+            user: user.toSafeObject(),
+        });
+    } catch (error) {
+        console.error("Verify email error:", error);
+        return res.status(500).json({ error: "Server error. Please try again later." });
+    }
+};
+
+/**
+ * POST /api/auth/resend-verification
+ *
+ * Resends a fresh verification email for accounts that haven't verified yet.
+ * Rate-limited to prevent abuse (via express-rate-limit on the route).
+ */
+export const resendVerification = async (req, res) => {
+    try {
+        const email = req.body.email?.toLowerCase().trim();
+
+        if (!email) {
+            return res.status(400).json({ error: "Email is required" });
+        }
+
+        const user = await User.findOne({ email }).select(
+            "+emailVerificationToken +emailVerificationTokenExpires"
+        );
+
+        // Always respond the same way to prevent email enumeration attacks
+        const genericMsg =
+            "If that email address is registered and unverified, a new verification link has been sent.";
+
+        if (!user || user.isEmailVerified) {
+            return res.status(200).json({ message: genericMsg });
+        }
+
+        // Generate a new token
+        const { rawToken, hashedToken } = generateVerificationToken();
+        user.emailVerificationToken = hashedToken;
+        user.emailVerificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        await user.save();
+
+        const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+        const verifyUrl = `${clientUrl}/verify-email?token=${rawToken}`;
+
+        try {
+            await sendVerificationEmail(email, user.firstName, verifyUrl);
+        } catch (emailError) {
+            console.error("Failed to resend verification email:", emailError.message);
+        }
+
+        return res.status(200).json({ message: genericMsg });
+    } catch (error) {
+        console.error("Resend verification error:", error);
+        return res.status(500).json({ error: "Server error. Please try again later." });
+    }
+};
+
+/**
+ * GET /api/auth/check-email/:email
+ *
+ * Used by the frontend for real-time duplicate email checking.
+ * Responds with { available: boolean }.
+ */
 export const checkEmail = async (req, res) => {
     try {
         const email = req.sanitisedEmail; // set by validateCheckEmail middleware
@@ -119,95 +231,65 @@ const MAX_LOGIN_ATTEMPTS = 5;           // lock after 5 consecutive failures
 const LOCK_DURATION_MS = 15 * 60 * 1000; // locked for 15 minutes
 
 /**
- * ==============================================================================
- * LOGIN CONTROLLER (login)
- * ==============================================================================
- * 
- * WHY WE NEED THIS FUNCTION:
- * When a user fills out the login form with their email and password, the frontend
- * sends a POST request to `/api/auth/login`. This function is responsible for:
- *   1. Finding the user in the database.
- *   2. Verifying their password securely using bcrypt comparison.
- *   3. Enforcing security policies (Account Lockout, Email Verification, Account Active state).
- *   4. Generating and returning a signed JSON Web Token (JWT) on success.
+ * POST /api/auth/login
  *
- * HTTP Method: POST /api/auth/login
+ * Security measures applied:
+ *  1. Input validation via middleware (validateLogin)
+ *  2. Rate limiting on the route (loginLimiter — 10 attempts / 15 min per IP)
+ *  3. Account-level lockout after MAX_LOGIN_ATTEMPTS consecutive failures
+ *  4. bcrypt.compare runs even when user not found (prevents timing-based
+ *     email enumeration — attacker can't tell valid vs invalid email by response time)
+ *  5. Generic error message — never reveals whether the email exists
+ *  6. Blocks unverified accounts from logging in
+ *  7. JWT issued only on full success; lastLogin updated
  */
 export const login = async (req, res) => {
     try {
-        // ── 1. EXTRACT SANITISED INPUTS ────────────────────────────────────────
-        // WHY: `req.sanitised` is populated by the `validateLogin` middleware before reaching here.
-        // It cleans and normalizes user input (e.g. trimming spaces, lowercasing emails) 
-        // to prevent bad inputs or injection attempts.
-        const { email, password } = req.sanitised;
+        const { email, password } = req.sanitised; // set by validateLogin middleware
 
-        // ── 2. FETCH USER & EXPLICITLY INCLUDE SENSITIVE FIELDS ───────────────
-        // WHY: In the User schema, `password`, `loginAttempts`, and `lockUntil` have `select: false` 
-        // to avoid accidentally leaking passwords in normal queries. 
-        // We use `.select("+password +loginAttempts +lockUntil")` here because we specifically 
-        // need to verify the password and check account lockout counters.
+        // ── Fetch user, explicitly selecting hidden security fields ────────────
         const user = await User.findOne({ email }).select(
             "+password +loginAttempts +lockUntil"
         );
 
-        // ── 3. PREVENT TIMING ATTACKS ON UNREGISTERED EMAILS ──────────────────
-        // WHY: Cryptographic password hashing (bcrypt) takes noticeable time to run.
-        // If we return immediately when an email is not found, malicious actors could measure 
-        // response times to discover which email addresses exist in our database (Email Enumeration).
-        // Calling `bcryptDummyCompare()` ensures the response time remains constant whether 
-        // the email exists or not.
+        // ── Constant-time dummy compare when user not found ───────────────────
+        // bcrypt.compare takes the same time whether or not the user exists,
+        // preventing timing attacks that reveal valid email addresses.
         if (!user) {
             await bcryptDummyCompare();
-            // Generic error message so attackers cannot guess whether email or password was wrong.
             return res.status(401).json({ error: "Invalid email or password." });
         }
 
-        // ── 4. CHECK ACCOUNT LOCKOUT STATUS ───────────────────────────────────
-        // WHY: To protect accounts against automated brute-force attacks (guessing passwords), 
-        // accounts are temporarily locked after multiple consecutive failed attempts.
+        // ── Account lockout check ─────────────────────────────────────────────
         if (user.isLocked()) {
-            // Calculate how many minutes are remaining in the 15-minute lock period
             const minutesLeft = Math.ceil((user.lockUntil - Date.now()) / 60_000);
-            // 423 Locked: Standard HTTP status for locked resources
             return res.status(423).json({
                 error: `Account temporarily locked due to too many failed attempts. Try again in ${minutesLeft} minute${minutesLeft > 1 ? "s" : ""}.`,
             });
         }
 
-        // ── 5. CHECK EMAIL VERIFICATION ───────────────────────────────────────
-        // WHY: Unverified accounts should not be allowed to log in until they click 
-        // the verification link sent to their email during registration.
-        // if (!user.isEmailVerified) {
-        //     // 403 Forbidden: Authenticated state attempted, but blocked due to policy
-        //     return res.status(403).json({
-        //         error: "Please verify your email address before logging in. Check your inbox or request a new verification link.",
-        //         code: "EMAIL_NOT_VERIFIED",
-        //     });
-        // }
+        // ── Email verification check ──────────────────────────────────────────
+        if (!user.isEmailVerified) {
+            return res.status(403).json({
+                error: "Please verify your email address before logging in. Check your inbox or request a new verification link.",
+                code: "EMAIL_NOT_VERIFIED",
+            });
+        }
 
-
-        // ── 6. CHECK ACCOUNT ACTIVE STATUS ────────────────────────────────────
-        // WHY: Admins or users may deactivate accounts. Deactivated users cannot log in.
+        // ── Account active check ──────────────────────────────────────────────
         if (!user.isActive) {
             return res.status(403).json({ error: "This account has been deactivated. Please contact support." });
         }
 
-        // ── 7. COMPARE PASSWORDS HASHES ───────────────────────────────────────
-        // WHY: Plaintext passwords are NEVER stored in the database. `user.comparePassword()` 
-        // uses bcrypt to hash the entered `password` and check if it matches the stored hash.
+        // ── Password comparison ───────────────────────────────────────────────
         const passwordMatch = await user.comparePassword(password);
 
         if (!passwordMatch) {
-            // Increment failed login attempt counter and lock account if limit (5) reached
             await handleFailedLogin(user);
-            // Return generic 401 Unauthorized error for security
-
             return res.status(401).json({ error: "Invalid email or password." });
         }
 
-        // ── 8. SUCCESSFUL LOGIN RESET & TIMESTAMP ─────────────────────────────
-        // WHY: Since password was correct, clear any past failed attempts & lockout timers,
-        // and record the timestamp of this successful login.
+        // ── Successful login — reset lockout counters ─────────────────────────
         if (user.loginAttempts > 0 || user.lockUntil) {
             user.loginAttempts = 0;
             user.lockUntil = undefined;
@@ -215,23 +297,185 @@ export const login = async (req, res) => {
         user.lastLogin = new Date();
         await user.save();
 
-        // ── 9. GENERATE & RETURN JWT TOKEN ────────────────────────────────────
-        // WHY: Issue a signed JSON Web Token (JWT) containing the user's ID. 
-        // The frontend will save this token (e.g. in localStorage) and send it in the 
-        // `Authorization: Bearer <token>` header on subsequent requests.
+        // ── Issue JWT ─────────────────────────────────────────────────────────
         const token = signToken(user._id);
 
-        // 200 OK: Return success message, token, and safe user profile object
         return res.status(200).json({
             message: "Login successful.",
             token,
             user: user.toSafeObject(),
         });
     } catch (error) {
-        // Catch server or database exceptions safely
         console.error("Login error:", error);
         return res.status(500).json({ error: "Server error. Please try again later." });
     }
+};
+
+/**
+ * POST /api/auth/logout
+ *
+ * JWTs are stateless — the real logout happens on the client by discarding
+ * the token (AuthContext.logout() already does this).
+ * This endpoint exists so the server can log the event and,
+ * in the future, support a token-revocation blocklist if needed.
+ */
+export const logout = async (req, res) => {
+    try {
+        // req.user is set by the `protect` middleware
+        console.log(`User ${req.user._id} logged out at ${new Date().toISOString()}`);
+
+        // Future enhancement: add token jti to a Redis blocklist here.
+
+        return res.status(200).json({ message: "Logged out successfully." });
+    } catch (error) {
+        console.error("Logout error:", error);
+        return res.status(500).json({ error: "Server error. Please try again later." });
+    }
+};
+
+/**
+ * GET /api/auth/me
+ *
+ * Returns the currently authenticated user's profile.
+ * Protected by the `protect` middleware.
+ */
+export const getMe = async (req, res) => {
+    try {
+        // req.user is already loaded by `protect` — just return it
+        return res.status(200).json({ user: req.user.toSafeObject() });
+    } catch (error) {
+        console.error("getMe error:", error);
+        return res.status(500).json({ error: "Server error. Please try again later." });
+    }
+};
+
+/**
+ * GET /api/auth/wishlist
+ *
+ * Returns the authenticated user's wishlist with listing documents populated.
+ */
+export const getWishlist = async (req, res) => {
+    try {
+        await req.user.populate({
+            path: "wishlist",
+            populate: {
+                path: "seller",
+                select: "firstName lastName",
+            },
+        });
+
+        const wishlist = req.user.wishlist.filter(Boolean);
+
+        return res.status(200).json({
+            wishlist,
+            count: wishlist.length,
+            user: req.user.toSafeObject(),
+        });
+    } catch (error) {
+        console.error("getWishlist error:", error);
+        return res.status(500).json({ error: "Failed to fetch wishlist." });
+    }
+};
+
+/**
+ * POST /api/auth/wishlist/:listingId
+ *
+ * Adds a listing to the current user's wishlist if it is not already present.
+ */
+export const addToWishlist = async (req, res) => {
+    try {
+        const { listingId } = req.params;
+
+        if (!mongoose.isValidObjectId(listingId)) {
+            return res.status(400).json({ error: "Invalid listing id." });
+        }
+
+        const listing = await Listing.findById(listingId).select("_id");
+        if (!listing) {
+            return res.status(404).json({ error: "Listing not found." });
+        }
+
+        const alreadySaved = req.user.wishlist.some((item) => item.toString() === listingId);
+        if (!alreadySaved) {
+            req.user.wishlist.push(listing._id);
+            await req.user.save();
+        }
+
+        await req.user.populate({
+            path: "wishlist",
+            populate: {
+                path: "seller",
+                select: "firstName lastName",
+            },
+        });
+
+        const wishlist = req.user.wishlist.filter(Boolean);
+
+        return res.status(200).json({
+            message: alreadySaved ? "Listing is already in wishlist." : "Listing added to wishlist.",
+            wishlist,
+            count: wishlist.length,
+            user: req.user.toSafeObject(),
+        });
+    } catch (error) {
+        console.error("addToWishlist error:", error);
+        return res.status(500).json({ error: "Failed to add listing to wishlist." });
+    }
+};
+
+/**
+ * DELETE /api/auth/wishlist/:listingId
+ *
+ * Removes a listing from the current user's wishlist.
+ */
+export const removeFromWishlist = async (req, res) => {
+    try {
+        const { listingId } = req.params;
+
+        if (!mongoose.isValidObjectId(listingId)) {
+            return res.status(400).json({ error: "Invalid listing id." });
+        }
+
+        const beforeCount = req.user.wishlist.length;
+        req.user.wishlist = req.user.wishlist.filter((item) => item.toString() !== listingId);
+
+        if (req.user.wishlist.length !== beforeCount) {
+            await req.user.save();
+        }
+
+        await req.user.populate({
+            path: "wishlist",
+            populate: {
+                path: "seller",
+                select: "firstName lastName",
+            },
+        });
+
+        const wishlist = req.user.wishlist.filter(Boolean);
+
+        return res.status(200).json({
+            message: "Listing removed from wishlist.",
+            wishlist,
+            count: wishlist.length,
+            user: req.user.toSafeObject(),
+        });
+    } catch (error) {
+        console.error("removeFromWishlist error:", error);
+        return res.status(500).json({ error: "Failed to remove listing from wishlist." });
+    }
+};
+
+// ── Private helpers ────────────────────────────────────────────────────────────
+
+/**
+ * Runs a dummy bcrypt compare so code paths for "user not found" and
+ * "wrong password" take the same amount of time, preventing timing attacks.
+ */
+const bcryptDummyCompare = async () => {
+    // A pre-hashed dummy — bcrypt.compare will always return false.
+    const DUMMY_HASH = "$2b$12$invalidhashthatisjustheretowastetimedummyhashXXXXXXXXX";
+    const { default: bcrypt } = await import("bcryptjs");
+    await bcrypt.compare("dummy_password_to_prevent_timing_attack", DUMMY_HASH);
 };
 
 /**
@@ -248,73 +492,4 @@ const handleFailedLogin = async (user) => {
     }
 
     await user.save();
-};
-
-/**
- * ==============================================================================
- * LOGOUT CONTROLLER (logout)
- * ==============================================================================
- * 
- * WHY WE NEED THIS FUNCTION:
- * In JWT authentication, authentication state is "stateless" — meaning tokens are stored 
- * on the client side (e.g., in browser memory/localStorage), NOT in a database session table.
- * 
- * Primary logout is performed by the client deleting its stored JWT.
- * However, having a server-side logout route is essential for:
- *   1. Logging security/audit events (e.g. recording exact timestamp when a user logs out).
- *   2. Clearing HTTP-Only auth cookies if cookie-based JWT storage is added.
- *   3. Providing an extension point for token revocation lists (e.g. Redis blocklisting).
- *
- * HTTP Method: POST /api/auth/logout
- * Middleware Protection: Requires `protect` middleware so `req.user` exists.
- */
-export const logout = async (req, res) => {
-    try {
-        // WHY: `req.user` was loaded by the `protect` middleware.
-        // We log the logout activity server-side for audit and security monitoring purposes.
-        console.log(`User ${req.user._id} logged out at ${new Date().toISOString()}`);
-
-        // Future enhancement hook: add token identifier (jti) to a Redis token blocklist here.
-
-        // 200 OK: Send confirmation response back to the client
-        return res.status(200).json({ message: "Logged out successfully." });
-    } catch (error) {
-        console.error("Logout error:", error);
-        return res.status(500).json({ error: "Server error. Please try again later." });
-    }
-};
-
-/**
- * ==============================================================================
- * GET CURRENT USER CONTROLLER (getMe)
- * ==============================================================================
- * 
- * WHY WE NEED THIS FUNCTION:
- * When a user refreshes their browser page or opens the web application again, 
- * the frontend client still holds their saved JWT token. The frontend sends a 
- * request to `GET /api/auth/me` with the token in the Authorization header to 
- * retrieve the user's latest profile information and restore their session state.
- * 
- * WHY IS THIS FUNCTION SO SHORT?
- * This route is protected by the `protect` middleware (`router.get("/me", protect, getMe)`). 
- * By the time this function executes, `protect` has ALREADY:
- *   1. Verified the JWT token.
- *   2. Looked up the user in MongoDB.
- *   3. Checked if the user account exists and is active.
- *   4. Attached the complete user object to `req.user`.
- * 
- * Therefore, `getMe` simply converts `req.user` to a safe object and returns it!
- *
- * HTTP Method: GET /api/auth/me
- * Middleware Protection: Requires `protect` middleware.
- */
-export const getMe = async (req, res) => {
-    try {
-        // WHY `toSafeObject()`: Strips internal/sensitive fields (like hashed password, 
-        // verification tokens, etc.) before sending the user profile to the client.
-        return res.status(200).json({ user: req.user.toSafeObject() });
-    } catch (error) {
-        console.error("getMe error:", error);
-        return res.status(500).json({ error: "Server error. Please try again later." });
-    }
 };

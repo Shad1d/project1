@@ -6,6 +6,8 @@ import {
     login,
     logout,
     getMe,
+    getWishlist,
+    removeFromWishlist,
 } from "../controllers/authController.js";
 import { validateRegister, validateLogin } from "../middleware/validate.js";
 import { protect } from "../middleware/authMiddleware.js";
@@ -63,5 +65,9 @@ router.post("/login", loginLimiter, validateLogin, login);
 router.post("/logout", protect, logout);
 
 router.get("/me", protect, getMe);
+
+router.get("/wishlist", protect, getWishlist);
+
+router.delete("/wishlist/:id", protect, removeFromWishlist);
 
 export default router;
