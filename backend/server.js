@@ -29,19 +29,47 @@ app.use(
         crossOriginResourcePolicy: false, // adjust when you add a frontend SSR layer
     })
 );
-// ── CORS ───────────────────────────────────────────────────────────────────────
-const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
-const originSources = process.env.ALLOWED_ORIGINS || clientUrl;
-const allowedOrigins = originSources
-    ? originSources.split(",").map((o) => o.trim())
-    : [];
+// // ── CORS ───────────────────────────────────────────────────────────────────────
+// //const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+// //const originSources = process.env.ALLOWED_ORIGINS || clientUrl;
+// //const allowedOrigins = originSources
+//     ? originSources.split(",").map((o) => o.trim())
+//     : [];
+
+// app.use(
+//     cors({
+//         origin: (origin, cb) => {
+//             // Allow requests with no origin (e.g. mobile apps, Postman in dev)
+//             if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+//             cb(new Error(`CORS: origin ${origin} not allowed`));
+//         },
+//         credentials: true,
+//     })
+// );
+
+const clientUrl = process.env.CLIENT_URL;
+
+console.log("================================");
+console.log("CLIENT_URL:", clientUrl);
+console.log("ALLOWED_ORIGINS:", process.env.ALLOWED_ORIGINS);
+console.log("================================");
+
+const allowedOrigins = [
+    clientUrl,
+    "http://localhost:5173",
+].filter(Boolean);
 
 app.use(
     cors({
         origin: (origin, cb) => {
-            // Allow requests with no origin (e.g. mobile apps, Postman in dev)
-            if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-            cb(new Error(`CORS: origin ${origin} not allowed`));
+            console.log("REQUEST ORIGIN:", origin);
+            console.log("ALLOWED:", allowedOrigins);
+
+            if (!origin || allowedOrigins.includes(origin)) {
+                return cb(null, true);
+            }
+
+            return cb(new Error(`CORS: origin ${origin} not allowed`));
         },
         credentials: true,
     })
