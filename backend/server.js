@@ -1,31 +1,35 @@
 import dotenv from "dotenv";
-dotenv.config();
-import path from "path";
-import { fileURLToPath } from "url";
-import express from "express";
-import cors from "cors";
-import pool from "./config/db.js";
+dotenv.config(); // must be first so env vars are available everywhere
+
 import dns from "dns";
+import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import cors from "cors";
+import http from "http";
+import rateLimit from "express-rate-limit";
+import mongoSanitize from "express-mongo-sanitize";
+import pool from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
-import listingsRoutes from "./routes/listingRoutes.js";
+import listingRoutes from "./routes/listingRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import conversationRoutes from "./routes/conversationRoutes.js";
 import { initSocket } from "./socket/index.js";
-import http from "http";
-import rateLimit from "express-rate-limit";
-import mongoSanitize from "express-mongo-sanitize";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-dns.setServers(["8.8.8.8", "1.1.1.1"])
+// ── DNS override (keep your original setting) ──────────────────────────────────
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 const app = express();
-app.set("trust proxy", 1); // trust first proxy (for rate limiting behind a reverse proxy)
-const PORT = process.env.PORT || 5000;
-
+app.set("trust proxy", 1);
+// ── Security headers ───────────────────────────────────────────────────────────
+app.use(
+    helmet({
+        contentSecurityPolicy: false,
+        crossOriginResourcePolicy: false, // adjust when you add a frontend SSR layer
+    })
+);
+// ── CORS ───────────────────────────────────────────────────────────────────────
 const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
 const originSources = process.env.ALLOWED_ORIGINS || clientUrl;
 const allowedOrigins = originSources
@@ -42,8 +46,10 @@ app.use(
         credentials: true,
     })
 );
-app.use(express.json({ limit: "10kb" }));
-app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+
+// ── Body parsing ───────────────────────────────────────────────────────────────
+app.use(express.json({ limit: "10kb" })); // reject oversized payloads
+app.use(express.urlencoded({ extended: false, limit: "10kb" }));
 
 // ── MongoDB query injection sanitiser ─────────────────────────────────────────
 // Strips $ and . from user-supplied data before it reaches Mongoose
@@ -54,42 +60,11 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve static uploads
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-// Fallback for missing uploaded files (e.g. legacy/deleted listings)
-app.use("/uploads", (_req, res) => {
-    const svgPlaceholder = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
-      <rect width="100%" height="100%" fill="#f3f4f6"/>
-      <rect x="2" y="2" width="596" height="396" rx="8" fill="none" stroke="#e5e7eb" stroke-width="2"/>
-      <circle cx="300" cy="160" r="35" fill="#e5e7eb"/>
-      <path d="M280 185 C280 185 290 170 300 170 C310 170 320 185 320 185" fill="none" stroke="#9ca3af" stroke-width="3" stroke-linecap="round"/>
-      <text x="50%" y="62%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="500" fill="#6b7280">Image Unavailable</text>
-    </svg>`;
-    res.setHeader("Content-Type", "image/svg+xml");
-    res.setHeader("Cache-Control", "public, max-age=3600");
-    return res.status(200).send(svgPlaceholder);
-});
-
-// ── Security headers ───────────────────────────────────────────────────────────
-app.use(
-    helmet({
-        contentSecurityPolicy: false,
-        crossOriginResourcePolicy: false, // adjust when you add a frontend SSR layer
-    })
-);
 // ── Logging ────────────────────────────────────────────────────────────────────
 if (process.env.NODE_ENV !== "test") {
     app.use(morgan("dev"));
 }
 
-// ── MongoDB query injection sanitiser ─────────────────────────────────────────
-// Strips $ and . from user-supplied data before it reaches Mongoose
-// currently not sanitizing query params, but can be added if needed
-app.use((req, res, next) => {
-    mongoSanitize.sanitize(req.body);
-    mongoSanitize.sanitize(req.params);
-    next();
-});
 // ── Global rate limiter (fallback) ─────────────────────────────────────────────
 app.use(
     rateLimit({
@@ -101,32 +76,43 @@ app.use(
     })
 );
 
-app.get("/", (req, res) => {
-    res.send("Server is running!");
-});
-
-// req -> data sent from the client (frontend) to the server (backend)
-// res -> data sent from the server (backend) to the client (frontend)
-
-app.post("/api/greet", (req, res) => {
-    const { name } = req.body;
-    console.log(`Received name: ${name}`);
-    res.json({ message: `Hello, ${name}! Welcome to Express` });
-});
-
+// ── Routes ─────────────────────────────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
-app.use("/api/listings", listingsRoutes);
+app.use("/api/listings", listingRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/conversations", conversationRoutes);
+// Serve uploaded images as static files
 app.use("/uploads", express.static("uploads"));
 
+// Health-check (useful for deployment probes)
+app.get("/health", (_req, res) => res.json({ status: "ok" }));
+
+// ── Create HTTP server (required for Socket.IO) ───────────────────────────────
 const httpServer = http.createServer(app);
 
+// ── Attach Socket.IO ──────────────────────────────────────────────────────────
 const io = initSocket(httpServer);
-app.set("io", io); // so controllers can emit events
+app.set("io", io);  // ← makes io accessible in controllers via req.app.get("io")
 
-await pool(); // initialize database connection
+// ── 404 handler ────────────────────────────────────────────────────────────────
+app.use((_req, res) => {
+    res.status(404).json({ error: "Route not found" });
+});
+
+// ── Global error handler ───────────────────────────────────────────────────────
+// eslint-disable-next-line no-unused-vars
+app.use((err, _req, res, _next) => {
+    console.error(err);
+    res.status(err.status || 500).json({
+        error: process.env.NODE_ENV === "production" ? "Internal server error" : err.message,
+    });
+});
+
+// ── Start ──────────────────────────────────────────────────────────────────────
+const PORT = process.env.PORT || 5000;
+
+await pool(); // connect to MongoDB first
 httpServer.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT} [${process.env.NODE_ENV || "development"}]`);
 });
