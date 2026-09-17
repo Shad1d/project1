@@ -115,4 +115,6 @@ const PORT = process.env.PORT || 5000;
 await pool(); // connect to MongoDB first
 httpServer.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT} [${process.env.NODE_ENV || "development"}]`);
+    console.log("CLIENT_URL:", process.env.CLIENT_URL);
 });
+
