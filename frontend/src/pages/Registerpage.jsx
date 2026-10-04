@@ -28,7 +28,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import LoginModal from "../components/auth/LoginModal.jsx";
+import LoginModal from "../components/auth/LoginModal";
 import { useAuth } from "../context/AuthContext.jsx";
 import { Button } from "../components/ui/button.jsx";
 import { Input } from "../components/ui/input.jsx";
@@ -147,7 +147,7 @@ export default function RegisterPage() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) return;
     try {
-      const response = fetch(
+      const response = await fetch(
         `${API_BASE_URL}/api/auth/check-email/${encodeURIComponent(email)}`,
       );
       if (response.ok) {
@@ -241,36 +241,79 @@ export default function RegisterPage() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    if (!formData.password) newErrors.password = "Password is required";
-    if (!formData.confirmPassword)
-      newErrors.confirmPassword = "Please confirm your password";
     if (!formData.firstName.trim())
       newErrors.firstName = "First name is required";
     if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!formData.phoneNumber.trim())
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        newErrors.email = "Please enter a valid email address";
+      }
+    }
+
+    if (!formData.phoneNumber.trim()) {
       newErrors.phoneNumber = "Phone number is required";
+    } else {
+      const phoneRegex = /^[0-9+\-\s()]{7,20}$/;
+      if (!phoneRegex.test(formData.phoneNumber)) {
+        newErrors.phoneNumber = "Please enter a valid phone number (at least 7 digits)";
+      }
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+      if (!passwordRegex.test(formData.password)) {
+        newErrors.password =
+          "Password must be at least 8 characters and include uppercase, lowercase, and a number";
+      }
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (formData.password && formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
     if (!formData.address.trim())
       newErrors.address = "Street address is required";
     if (!formData.location)
       newErrors.location = "Please pick a location on the map";
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (formData.email && !emailRegex.test(formData.email))
-      newErrors.email = "Please enter a valid email address";
-
-    if (formData.password && formData.password.length < 6)
-      newErrors.password = "Password must be at least 6 characters long";
-
-    if (formData.password !== formData.confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match";
-
-    const phoneRegex = /^[0-9+\-\s()]+$/;
-    if (formData.phoneNumber && !phoneRegex.test(formData.phoneNumber))
-      newErrors.phoneNumber = "Please enter a valid phone number";
-
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+
+    const errorCount = Object.keys(newErrors).length;
+    if (errorCount > 0) {
+      // Provide a specific, helpful notification for the user
+      let notificationMessage = "Please complete all required fields correctly.";
+      if (newErrors.email && !formData.email.trim()) {
+        notificationMessage = "Email address is required.";
+      } else if (newErrors.email) {
+        notificationMessage = newErrors.email;
+      } else if (newErrors.password && !formData.password) {
+        notificationMessage = "Password is required.";
+      } else if (newErrors.password) {
+        notificationMessage = newErrors.password;
+      } else if (newErrors.confirmPassword) {
+        notificationMessage = newErrors.confirmPassword;
+      } else if (newErrors.firstName || newErrors.lastName) {
+        notificationMessage = "Please enter your first and last name.";
+      } else if (newErrors.phoneNumber) {
+        notificationMessage = newErrors.phoneNumber;
+      } else if (newErrors.address) {
+        notificationMessage = "Please provide your street address.";
+      } else if (newErrors.location) {
+        notificationMessage = "Please select your location on the map.";
+      }
+
+      showWarning("Incomplete Form", notificationMessage);
+      return false;
+    }
+
+    return true;
   };
 
   // ── submit ───────────────────────────────────────────────────────────────────
@@ -309,25 +352,52 @@ export default function RegisterPage() {
         });
 
         return;
-      } else {
-        if (!response.ok) {
-          console.log(data);
+      }
 
-          if (data.errors) {
-            setErrors(data.errors);
-          } else {
-            showError(
-              "Error",
-              data.error || "An error occurred during registration.",
-            );
-          }
-
-          return;
+      // Handle specific HTTP status codes with informative notifications
+      if (response.status === 409) {
+        const errorMsg = data.error || "Email is already registered";
+        setErrors((prev) => ({ ...prev, email: errorMsg }));
+        showError(
+          "Registration Failed",
+          "This email address is already registered. Please sign in or use a different email.",
+        );
+      } else if (response.status === 422) {
+        if (data.errors) {
+          setErrors(data.errors);
+          const firstError = Object.values(data.errors)[0];
+          showError(
+            "Validation Failed",
+            firstError || "Please check the highlighted fields and try again.",
+          );
+        } else {
+          showError(
+            "Validation Failed",
+            data.error || "Please check your inputs and try again.",
+          );
         }
+      } else if (response.status === 429) {
+        showWarning(
+          "Too Many Attempts",
+          data.error || "Too many registration attempts. Please wait 15 minutes before trying again.",
+        );
+      } else if (response.status >= 500) {
+        showError(
+          "Server Error",
+          data.error || "The server encountered an issue. Please try again shortly.",
+        );
+      } else {
+        showError(
+          "Registration Failed",
+          data.error || "An error occurred during registration. Please try again.",
+        );
       }
     } catch (error) {
       console.error("Registration failed:", error);
-      showError("Error", "Something went wrong. Please try again later.");
+      showError(
+        "Connection Error",
+        "Unable to reach the server. Please check your internet connection and try again.",
+      );
     } finally {
       setIsLoading(false);
     }
