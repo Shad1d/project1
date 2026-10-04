@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Homepage from "./pages/Homepage.jsx";
-import RegisterPage from "./pages/RegisterPage.jsx";
+import RegisterPage from "./pages/Registerpage.jsx";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import NavBar from "./components/layout/NavBar.jsx";
@@ -19,6 +19,7 @@ import InboxPage from "./pages/InboxPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
+import { NotificationProvider } from "./components/hooks/useNotification.js";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -29,9 +30,6 @@ function ScrollToTop() {
 
   return null;
 }
-
-
-import { NotificationProvider } from "./components/hooks/useNotification.js";
 
 export default function App() {
   return (
