@@ -87,7 +87,7 @@ const createResendClient = () => {
 export const sendEmail = async ({ to, subject, html }) => {
   const resend = createResendClient();
   const { data, error } = await resend.emails.send({
-    from: "onboarding@resend.dev",
+    from: "noreply@cartivo.site",
     to,
     subject,
     html,
