@@ -1,15 +1,155 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap");
 @import "tailwindcss";
+
+:root {
+    color-scheme: light;
+    --paper: #f5f2e9;
+    --paper-deep: #ece8dc;
+    --ink: #20332d;
+    --muted-ink: #66716a;
+    --brand: #1d4d3e;
+    --brand-dark: #153a30;
+    --accent: #d66b4a;
+    --line: #dedbd1;
+    --font-display: "Newsreader", Georgia, serif;
+    --font-body: "DM Sans", sans-serif;
+}
+
+@theme {
+    --color-blue-50: var(--paper);
+    --color-blue-100: var(--paper-deep);
+    --color-blue-200: var(--line);
+    --color-blue-300: #c0ccc4;
+    --color-blue-400: #658273;
+    --color-blue-500: var(--brand);
+    --color-blue-600: var(--brand);
+    --color-blue-700: var(--brand-dark);
+    --color-blue-800: #193b32;
+    --color-blue-900: #142f28;
+    --color-indigo-50: var(--paper);
+    --color-indigo-100: var(--paper-deep);
+    --color-indigo-200: var(--line);
+    --color-indigo-300: #c0ccc4;
+    --color-indigo-400: #658273;
+    --color-indigo-500: var(--brand);
+    --color-indigo-600: var(--brand);
+    --color-indigo-700: var(--brand-dark);
+    --color-indigo-800: #193b32;
+    --color-indigo-900: #142f28;
+    --color-purple-50: var(--paper);
+    --color-purple-100: var(--paper-deep);
+    --color-purple-200: var(--line);
+    --color-purple-300: #c0ccc4;
+    --color-purple-400: #658273;
+    --color-purple-500: var(--brand);
+    --color-purple-600: var(--brand);
+    --color-purple-700: var(--brand-dark);
+    --color-purple-800: #193b32;
+    --color-purple-900: #142f28;
+    --color-violet-50: var(--paper);
+    --color-violet-100: var(--paper-deep);
+    --color-violet-200: var(--line);
+    --color-violet-300: #c0ccc4;
+    --color-violet-400: #658273;
+    --color-violet-500: var(--brand);
+    --color-violet-600: var(--brand);
+    --color-violet-700: var(--brand-dark);
+    --color-violet-800: #193b32;
+    --color-violet-900: #142f28;
+    --color-sky-50: var(--paper);
+    --color-sky-100: var(--paper-deep);
+    --color-sky-200: var(--line);
+    --color-sky-300: #c0ccc4;
+    --color-sky-400: #658273;
+    --color-sky-500: var(--brand);
+    --color-sky-600: var(--brand);
+    --color-sky-700: var(--brand-dark);
+    --color-sky-800: #193b32;
+    --color-sky-900: #142f28;
+    --color-emerald-50: var(--paper);
+    --color-emerald-100: #e5eee7;
+    --color-emerald-200: #c7d8ca;
+    --color-emerald-300: #9fbca7;
+    --color-emerald-400: #658273;
+    --color-emerald-500: var(--brand);
+    --color-emerald-600: var(--brand);
+    --color-emerald-700: var(--brand-dark);
+    --color-emerald-800: #193b32;
+    --color-emerald-900: #142f28;
+    --color-green-50: var(--paper);
+    --color-green-100: #e5eee7;
+    --color-green-200: #c7d8ca;
+    --color-green-300: #9fbca7;
+    --color-green-400: #658273;
+    --color-green-500: var(--brand);
+    --color-green-600: var(--brand);
+    --color-green-700: var(--brand-dark);
+    --color-green-800: #193b32;
+    --color-green-900: #142f28;
+    --color-teal-50: var(--paper);
+    --color-teal-100: #e5eee7;
+    --color-teal-200: #c7d8ca;
+    --color-teal-300: #9fbca7;
+    --color-teal-400: #658273;
+    --color-teal-500: var(--brand);
+    --color-teal-600: var(--brand);
+    --color-teal-700: var(--brand-dark);
+    --color-teal-800: #193b32;
+    --color-teal-900: #142f28;
+    --color-amber-50: #f7eee9;
+    --color-amber-100: #f4e6df;
+    --color-amber-200: #edcfbf;
+    --color-amber-300: #e5ac91;
+    --color-amber-400: #db896b;
+    --color-amber-500: var(--accent);
+    --color-amber-600: #bd593b;
+    --color-amber-700: #a34f35;
+    --color-amber-800: #8f432e;
+    --color-amber-900: #783c2d;
+    --color-orange-50: #f7eee9;
+    --color-orange-100: #f4e6df;
+    --color-orange-200: #edcfbf;
+    --color-orange-300: #e5ac91;
+    --color-orange-400: #db896b;
+    --color-orange-500: var(--accent);
+    --color-orange-600: #bd593b;
+    --color-orange-700: #a34f35;
+    --color-orange-800: #8f432e;
+    --color-orange-900: #783c2d;
+    --color-gray-50: var(--paper);
+    --color-gray-100: var(--paper-deep);
+    --color-gray-200: var(--line);
+    --color-gray-300: #c8c5ba;
+    --color-gray-400: #8b9188;
+    --color-gray-500: var(--muted-ink);
+    --color-gray-600: #505a52;
+    --color-gray-700: #39483f;
+    --color-gray-800: #2b3b33;
+    --color-gray-900: var(--ink);
+    --color-slate-50: var(--paper);
+    --color-slate-100: var(--paper-deep);
+    --color-slate-200: var(--line);
+    --color-slate-300: #c8c5ba;
+    --color-slate-400: #8b9188;
+    --color-slate-500: var(--muted-ink);
+    --color-slate-600: #505a52;
+    --color-slate-700: #39483f;
+    --color-slate-800: #2b3b33;
+    --color-slate-900: var(--ink);
+}
 
 @layer base {
     html {
         @apply scroll-smooth;
+        background: var(--paper);
     }
 
     body {
         @apply antialiased;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-            "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-            sans-serif;
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-body);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
@@ -20,6 +160,22 @@
     h4,
     h5,
     h6 {
-        @apply font-semibold tracking-tight;
+        color: var(--ink);
+        font-family: var(--font-display);
+        font-weight: 500;
+        letter-spacing: -0.035em;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+        font: inherit;
+    }
+}
+
+@layer utilities {
+    .font-display {
+        font-family: var(--font-display);
     }
 }

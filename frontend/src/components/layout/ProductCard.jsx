@@ -68,13 +68,15 @@ const ProductCard = ({
   const resolvePrice = () => {
     if (product?.listingType === "rent") {
       return product.rentPricePerDay != null
-        ? `$${Number(product.rentPricePerDay).toLocaleString()}/day`
-        : (product.price ?? "—");
+        ? `$${Number(product.rentPricePerDay).toLocaleString("en-US")}/day`
+        : product.price != null
+          ? `$${Number(product.price).toLocaleString("en-US")}`
+          : "—";
     }
     if (product?.price != null) {
-      // If price is already a formatted string (legacy), return as-is
-      return typeof product.price === "number"
-        ? `$${Number(product.price).toLocaleString()}`
+      const amount = Number(product.price);
+      return Number.isFinite(amount)
+        ? `$${amount.toLocaleString("en-US")}`
         : product.price;
     }
     return "—";
@@ -209,7 +211,7 @@ const ProductCard = ({
 
   return (
     <div
-      className={`bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 overflow-hidden flex flex-col h-full ${className}`}
+      className={`bg-[#fffdf7] rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 border border-[#dedbd1] overflow-hidden flex flex-col h-full ${className}`}
     >
       {/* Image */}
       <div className="relative overflow-hidden flex-shrink-0">
@@ -225,7 +227,7 @@ const ProductCard = ({
         {product?.listingType && (
           <span
             className={`absolute top-2 left-2 text-xs font-bold px-2 py-0.5 rounded-full ${
-              isRental ? "bg-amber-500 text-white" : "bg-violet-600 text-white"
+              isRental ? "bg-[#d66b4a] text-white" : "bg-[#1d4d3e] text-white"
             }`}
           >
             {isRental ? "Rent" : "Sale"}
@@ -288,7 +290,7 @@ const ProductCard = ({
 
         {/* Price row */}
         <div className="flex items-center justify-between mb-2">
-          <span className="text-lg font-bold text-purple-600">
+          <span className="text-lg font-bold text-[#1d4d3e]">
             {resolvePrice()}
           </span>
           {product?.condition && (
@@ -327,7 +329,7 @@ const ProductCard = ({
             <div className="flex items-center gap-3 mb-3">
               <button
                 onClick={() => setQuantity((prev) => Math.max(0, prev - 1))}
-                className="w-8 h-8 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition-colors"
+                className="w-8 h-8 bg-[#1d4d3e] text-white rounded font-bold hover:bg-[#153a30] transition-colors"
               >
                 −
               </button>
@@ -336,7 +338,7 @@ const ProductCard = ({
               </span>
               <button
                 onClick={() => setQuantity((prev) => prev + 1)}
-                className="w-8 h-8 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition-colors"
+                className="w-8 h-8 bg-[#1d4d3e] text-white rounded font-bold hover:bg-[#153a30] transition-colors"
               >
                 +
               </button>
@@ -351,7 +353,7 @@ const ProductCard = ({
                 onClick={handleAddToCart}
                 className={`w-full py-2.5 rounded-lg text-white text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
                   quantity > 0
-                    ? "bg-green-600 hover:bg-green-700"
+                    ? "bg-[#1d4d3e] hover:bg-[#153a30]"
                     : "bg-gray-300 cursor-not-allowed"
                 }`}
               >

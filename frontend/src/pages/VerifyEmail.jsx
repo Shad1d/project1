@@ -90,29 +90,18 @@ export default function VerifyEmail() {
   }, [status, countdown, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-200 flex items-center justify-center px-4 py-8 relative overflow-hidden">
-      {/* Decorative blobs */}
-      <div className="absolute w-[400px] h-[400px] bg-emerald-300 rounded-full blur-[60px] opacity-30 pointer-events-none -top-24 -left-24" />
-      <div className="absolute w-[300px] h-[300px] bg-emerald-400 rounded-full blur-[60px] opacity-30 pointer-events-none -bottom-20 -right-20" />
-      <div className="absolute w-[200px] h-[200px] bg-amber-200 rounded-full blur-[60px] opacity-30 pointer-events-none top-1/2 left-[60%]" />
+    <div className="min-h-screen bg-[#f5f2e9] flex items-center justify-center px-4 py-8 relative overflow-hidden">
 
       {/* Card */}
       <div
-        className={`w-full max-w-[500px] bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-[0_25px_60px_rgba(6,78,59,0.12),0_0_0_1px_rgba(255,255,255,0.6)] overflow-hidden relative z-10 transition-all duration-[550ms] ease-[cubic-bezier(.22,1,.36,1)] ${
+        className={`w-full max-w-[500px] bg-[#fffdf7] border border-[#dedbd1] rounded-2xl shadow-lg overflow-hidden relative z-10 transition-all duration-[550ms] ease-[cubic-bezier(.22,1,.36,1)] ${
           visible
             ? "opacity-100 translate-y-0 scale-100"
             : "opacity-0 translate-y-7 scale-[0.98]"
         }`}
       >
         {/* Header */}
-        <div className="bg-gradient-to-br from-emerald-900 via-emerald-600 to-emerald-400 px-8 pt-10 pb-8 text-center relative overflow-hidden">
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.03) 20px, rgba(255,255,255,0.03) 40px)",
-            }}
-          />
+        <div className="bg-[#1d4d3e] px-8 pt-10 pb-8 text-center relative overflow-hidden">
 
           {/* Animated icon */}
           <div
@@ -177,7 +166,7 @@ export default function VerifyEmail() {
               </div>
 
               <h2 className="text-xl font-bold text-gray-900 mb-2">
-                Welcome to GroCart!
+                Welcome to Cartivo!
               </h2>
               <p className="text-gray-500 text-sm mb-6">{message}</p>
 
@@ -228,7 +217,7 @@ export default function VerifyEmail() {
               <div className="flex flex-col gap-3">
                 <button
                   onClick={() => navigate("/register")}
-                  className="w-full bg-gradient-to-br from-emerald-900 to-emerald-500 hover:opacity-90 text-white py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+                  className="w-full bg-[#1d4d3e] hover:bg-[#153a30] text-white py-3 rounded-xl font-semibold transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <Mail size={16} />
                   Create New Account

@@ -312,7 +312,7 @@ export default function ProfilePage() {
           <AlertCircle className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Required</h2>
           <p className="text-gray-600 text-sm mb-6">
-            Please log in to your GroCart account to view and edit your profile.
+            Please log in to your Cartivo account to view and edit your profile.
           </p>
           <Button
             onClick={() => navigate("/")}
@@ -338,7 +338,7 @@ export default function ProfilePage() {
         {/* ── Page Header ── */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-white text-2xl sm:text-3xl font-extrabold shadow-lg shadow-emerald-500/20">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#1d4d3e] flex items-center justify-center text-white text-2xl sm:text-3xl font-extrabold">
               {user.firstName ? user.firstName[0].toUpperCase() : "U"}
             </div>
             <div>

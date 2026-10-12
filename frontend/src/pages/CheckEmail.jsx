@@ -74,7 +74,7 @@ export const CheckEmail = () => {
     {
       icon: "📬",
       title: "Open your inbox",
-      desc: "Look for an email from GroCart",
+      desc: "Look for an email from Cartivo",
     },
     {
       icon: "🔍",
@@ -89,30 +89,18 @@ export const CheckEmail = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-200 flex items-center justify-center px-4 py-8 font-sans relative overflow-hidden">
-      {/* Decorative blobs */}
-      <div className="absolute w-[400px] h-[400px] bg-emerald-300 rounded-full blur-[60px] opacity-35 pointer-events-none -top-24 -left-24" />
-      <div className="absolute w-[300px] h-[300px] bg-emerald-400 rounded-full blur-[60px] opacity-35 pointer-events-none -bottom-20 -right-20" />
-      <div className="absolute w-[200px] h-[200px] bg-amber-200 rounded-full blur-[60px] opacity-35 pointer-events-none top-1/2 left-[60%]" />
+    <div className="min-h-screen bg-[#f5f2e9] flex items-center justify-center px-4 py-8 font-sans relative overflow-hidden">
 
       {/* Card */}
       <div
-        className={`w-full max-w-[520px] bg-white/85 backdrop-blur-xl rounded-[2rem] shadow-[0_25px_60px_rgba(6,78,59,0.12),0_0_0_1px_rgba(255,255,255,0.6)] overflow-hidden relative z-10 transition-all duration-[550ms] ease-[cubic-bezier(.22,1,.36,1)] ${
+        className={`w-full max-w-[520px] bg-[#fffdf7] border border-[#dedbd1] rounded-2xl shadow-lg overflow-hidden relative z-10 transition-all duration-[550ms] ease-[cubic-bezier(.22,1,.36,1)] ${
           visible
             ? "opacity-100 translate-y-0 scale-100"
             : "opacity-0 translate-y-7 scale-[0.98]"
         }`}
       >
         {/* Banner */}
-        <div className="bg-gradient-to-br from-emerald-900 via-emerald-600 to-emerald-400 px-8 pt-10 pb-8 text-center relative overflow-hidden">
-          {/* Stripe overlay */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.03) 20px, rgba(255,255,255,0.03) 40px)",
-            }}
-          />
+        <div className="bg-[#1d4d3e] px-8 pt-10 pb-8 text-center relative overflow-hidden">
 
           {/* Floating dots */}
           {[
@@ -203,7 +191,7 @@ export const CheckEmail = () => {
             <button
               onClick={handleResend}
               disabled={!canResend || resending}
-              className="inline-flex items-center gap-2 bg-gradient-to-br from-emerald-900 to-emerald-500 text-white border-none rounded-[0.625rem] px-6 py-[0.7rem] text-sm font-semibold cursor-pointer transition-all duration-200 disabled:opacity-45 disabled:cursor-not-allowed hover:not-disabled:opacity-90 hover:not-disabled:-translate-y-px"
+              className="inline-flex items-center gap-2 bg-[#1d4d3e] hover:bg-[#153a30] text-white border-none rounded-[0.625rem] px-6 py-[0.7rem] text-sm font-semibold cursor-pointer transition-colors duration-200 disabled:opacity-45 disabled:cursor-not-allowed"
             >
               <RefreshCw
                 size={14}

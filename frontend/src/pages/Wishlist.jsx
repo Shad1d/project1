@@ -58,17 +58,10 @@ export default function Wishlist() {
   return (
     <div
       className="min-h-screen"
-      style={{
-        background:
-          "radial-gradient(circle at top, rgba(99, 102, 241, 0.16), transparent 34%), linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)",
-      }}
+      style={{ background: "var(--paper)" }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="relative overflow-hidden rounded-3xl border border-white/70 bg-slate-950 text-white shadow-[0_30px_80px_rgba(15,23,42,0.24)] mb-8 sm:mb-10">
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(16,185,129,0.18),rgba(59,130,246,0.22),rgba(99,102,241,0.18))]" />
-          <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-emerald-400/20 blur-3xl" />
-          <div className="absolute -left-20 bottom-0 h-56 w-56 rounded-full bg-indigo-400/20 blur-3xl" />
-
+        <div className="relative overflow-hidden rounded-2xl border border-[#1d4d3e] bg-[#1d4d3e] text-white shadow-md mb-8 sm:mb-10">
           <div className="relative p-6 sm:p-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
               <Sparkles className="h-3.5 w-3.5" />

@@ -411,10 +411,10 @@ export default function RegisterPage() {
   // ── render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-400 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#f5f2e9] flex items-center justify-center p-4">
       <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-white/30 overflow-hidden">
         {/* ── Header ── */}
-        <div className="bg-gradient-to-br from-emerald-500 via-green-600 to-teal-700 p-12 text-center relative overflow-hidden">
+        <div className="bg-[#1d4d3e] p-12 text-center relative overflow-hidden">
           <div className="absolute inset-0 opacity-20">
             <div className="absolute top-8 left-12 text-6xl animate-bounce">
               🥕
@@ -437,7 +437,7 @@ export default function RegisterPage() {
           </div>
           <div className="relative z-10">
             <div className="flex items-center justify-center mb-6">
-              <div className="bg-white/25 backdrop-blur-lg rounded-full p-6 mr-6 border-3 border-white/40 shadow-2xl">
+              <div className="bg-white/15 rounded-full p-6 mr-6 border-3 border-white/30">
                 <div className="flex items-center justify-center relative">
                   <ShoppingCart className="w-12 h-12 text-white mr-2" />
                   <Leaf className="w-8 h-8 text-yellow-300 absolute -top-1 -right-1" />
@@ -615,7 +615,7 @@ export default function RegisterPage() {
               type="button"
               onClick={getCurrentLocation}
               disabled={locationLoading}
-              className="h-12 bg-gradient-to-r from-blue-800 to-blue-500 hover:from-blue-500 hover:to-blue-900 hover:shadow-xl hover:scale-102 rounded-lg flex items-center gap-2 px-5 text-white"
+              className="h-12 bg-[#1d4d3e] hover:bg-[#153a30] rounded-lg flex items-center gap-2 px-5 text-white"
             >
               {locationLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -750,7 +750,7 @@ export default function RegisterPage() {
           <Button
             onClick={handleSubmit}
             disabled={isLoading}
-            className="w-full h-16 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 hover:shadow-xl hover:scale-105 text-white font-semibold text-lg rounded-lg transition-all duration-300 flex items-center justify-center transform"
+            className="w-full h-16 bg-[#1d4d3e] hover:bg-[#153a30] text-white font-semibold text-lg rounded-lg transition-colors duration-300 flex items-center justify-center"
           >
             {isLoading ? (
               <>

@@ -151,7 +151,7 @@ export const verifyEmail = async (req, res) => {
         const jwtToken = signToken(user._id);
 
         return res.status(200).json({
-            message: "Email verified successfully! Welcome to GrocCart.",
+            message: "Email verified successfully! Welcome to Cartivo.",
             token: jwtToken,
             user: user.toSafeObject(),
         });

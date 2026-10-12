@@ -289,7 +289,7 @@ export default function InboxPage() {
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl relative">
+              <div className="p-2.5 bg-[#1d4d3e] rounded-xl relative">
                 <MessageSquare className="w-5 h-5 text-white" />
                 {totalUnread > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">

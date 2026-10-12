@@ -67,7 +67,7 @@ const createResendClient = () => {
 
 //   console.log("4. Sending email...");
 //   const mailOptions = {
-//     from: `"${process.env.APP_NAME || "GrocCart"}" <${process.env.SMTP_FROM || process.env.SMTP_USER || "no-reply@grocart.com"}>`,
+//     from: `"${process.env.APP_NAME || "Cartivo"}" <${process.env.SMTP_FROM || process.env.SMTP_USER || "no-reply@cartivo.com"}>`,
 //     to,
 //     subject,
 //     html,
@@ -110,7 +110,7 @@ export const sendEmail = async ({ to, subject, html }) => {
  * @param {string} verifyUrl     - full verification URL with token
  */
 export const sendVerificationEmail = async (to, firstName, verifyUrl) => {
-  const appName = process.env.APP_NAME || "GroCart";
+  const appName = process.env.APP_NAME || "Cartivo";
 
   const html = `
     <!DOCTYPE html>

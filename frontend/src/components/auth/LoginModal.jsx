@@ -125,12 +125,12 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess, currentPath }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-[2px] transition-opacity duration-300"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 transition-opacity duration-300"
       onClick={handleBackdropClick}
     >
-      <div className="relative w-full max-w-md mx-4 bg-gradient-to-br from-pink-300 via-purple-300 to-indigo-400 rounded-3xl shadow-2xl border border-white/30 transform transition-all duration-300 scale-100 p-1">
+      <div className="relative w-full max-w-md mx-4 bg-[#1d4d3e] rounded-2xl shadow-xl border border-[#dedbd1] transform transition-all duration-300 scale-100 p-1">
         {/* Inner White Content Box */}
-        <div className="bg-white/95 backdrop-blur-md rounded-3xl">
+        <div className="bg-[#fffdf7] rounded-2xl">
           {/* Close Button */}
           <button
             onClick={onClose}
@@ -142,13 +142,13 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess, currentPath }) => {
 
           {/* Header */}
           <div className="px-8 pt-8 pb-6 text-center">
-            <div className="mx-auto w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
+            <div className="mx-auto w-16 h-16 bg-[#1d4d3e] rounded-full flex items-center justify-center mb-4">
               <User className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Welcome Back
             </h2>
-            <p className="text-gray-600">Sign in to your GroCart account</p>
+            <p className="text-gray-600">Sign in to your Cartivo account</p>
           </div>
 
           {/* Form */}
@@ -235,7 +235,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess, currentPath }) => {
             <button
               type="submit"
               disabled={isLoading || !formData.email || !formData.password}
-              className="w-full h-12 bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-3 px-4 rounded-lg font-semibold hover:from-yellow-500 hover:to-orange-600 hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none transition-all duration-300 transform"
+              className="w-full h-12 bg-[#1d4d3e] text-white py-3 px-4 rounded-lg font-semibold hover:bg-[#153a30] focus:outline-none focus:ring-2 focus:ring-[#1d4d3e]/30 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none transition-colors duration-200"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2">

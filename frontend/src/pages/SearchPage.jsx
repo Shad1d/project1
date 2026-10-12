@@ -824,7 +824,7 @@ export default function SearchPage() {
                       {/* Custom Overlay Badges for Distance & Seller Verification */}
                       <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
                         {item.seller?.isEmailVerified && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold bg-emerald-600 text-white px-2 py-0.5 rounded-md shadow backdrop-blur-sm">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold bg-emerald-600 text-white px-2 py-0.5 rounded-md shadow">
                             <ShieldCheck className="w-3 h-3" />
                             Verified Seller
                           </span>
@@ -969,7 +969,7 @@ export default function SearchPage() {
 
         {/* ── Mobile Filter Modal ── */}
         {mobileFilterOpen && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex justify-end">
+          <div className="fixed inset-0 z-50 bg-black/50 flex justify-end">
             <div className="w-full max-w-xs bg-white border-l border-gray-200 h-full p-6 overflow-y-auto space-y-6 shadow-2xl">
               <div className="flex items-center justify-between pb-4 border-b border-gray-150">
                 <span className="font-bold text-gray-900 text-base">Filter Products</span>

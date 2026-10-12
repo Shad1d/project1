@@ -113,7 +113,7 @@ function StatusBanner({ results }) {
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Link
           to="/my-orders"
-          className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all shadow-md"
+          className="px-6 py-3 bg-[#1d4d3e] text-white rounded-xl font-semibold hover:bg-[#153a30] transition-all shadow-md"
         >
           View My Orders
         </Link>
@@ -593,7 +593,7 @@ export default function CheckoutPage() {
               <button
                 onClick={handlePlaceOrders}
                 disabled={submitting}
-                className="w-full py-3.5 bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 hover:from-blue-600 hover:via-purple-700 hover:to-pink-600 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl font-bold text-base transition-all shadow-md flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-[#1d4d3e] hover:bg-[#153a30] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl font-bold text-base transition-all shadow-md flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>

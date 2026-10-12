@@ -202,11 +202,11 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
   // ── Price display helper ────────────────────────────────────────────────────
   const itemPrice = (item) => {
     if (item.listingType === "rent") {
-      return `$${(item.rentPricePerDay || 0).toLocaleString()}/day${
+      return `$${(item.rentPricePerDay || 0).toLocaleString("en-US")}/day${
         item.rentalDays ? ` × ${item.rentalDays}d` : ""
       }`;
     }
-    return `$${(item.price || 0).toLocaleString()}`;
+    return `$${(item.price || 0).toLocaleString("en-US")}`;
   };
 
   const itemSubtotal = (item) => {
@@ -234,8 +234,7 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
         }`}
       >
         <div className="relative">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 rounded-full shadow-2xl flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur animate-pulse" />
+          <div className="w-14 h-14 bg-[#1d4d3e] rounded-full shadow-lg flex items-center justify-center">
             <ShoppingCart className="w-7 h-7 text-white relative z-10 transition-transform duration-300 group-hover:scale-110" />
           </div>
 
@@ -258,7 +257,7 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
       {/* Overlay */}
       {isCartOpen && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300"
+          className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
           onClick={toggleCart}
         />
       )}
@@ -269,18 +268,12 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
           isCartOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* Decorative blobs */}
-        <div className="absolute inset-0 opacity-30 pointer-events-none">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-200/40 to-purple-200/40 rounded-full blur-3xl translate-x-16 -translate-y-16 animate-pulse" />
-          <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-pink-200/40 to-orange-200/40 rounded-full blur-3xl -translate-x-20 translate-y-20 animate-pulse delay-1000" />
-        </div>
-
         {/* Header */}
-        <div className="relative z-10 p-6 border-b border-gray-200 bg-white/80 backdrop-blur-md flex-shrink-0">
+        <div className="relative z-10 p-6 border-b border-[#dedbd1] bg-[#fffdf7] flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-blue-100 to-purple-100">
-                <ShoppingBag className="w-6 h-6 text-blue-600" />
+              <div className="p-2 rounded-xl bg-[#e9e4d8]">
+                <ShoppingBag className="w-6 h-6 text-[#1d4d3e]" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-800">
@@ -304,7 +297,7 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
         <div className="relative z-10 overflow-y-auto p-6 space-y-4 h-[calc(100vh-400px)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+              <div className="w-8 h-8 border-4 border-[#1d4d3e] border-t-transparent rounded-full animate-spin mb-4" />
               <p className="text-gray-500 font-medium">Loading cart…</p>
             </div>
           ) : fetchError ? (
@@ -318,7 +311,7 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
               <p className="text-gray-500 mb-4 font-medium">{fetchError}</p>
               <button
                 onClick={fetchCartItems}
-                className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg font-bold transition-colors"
+                className="px-6 py-3 bg-[#1d4d3e] hover:bg-[#153a30] text-white rounded-lg shadow-lg font-bold transition-colors"
               >
                 Retry
               </button>
@@ -336,7 +329,7 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
               </p>
               <button
                 onClick={toggleCart}
-                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-bold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg"
+                className="px-6 py-3 bg-[#1d4d3e] text-white rounded-xl font-bold hover:bg-[#153a30] transition-all duration-300 shadow-lg"
               >
                 Continue Shopping
               </button>
@@ -345,7 +338,7 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
             cartItems.map((item, index) => (
               <div
                 key={item._id}
-                className="flex items-center space-x-4 p-4 bg-white border-2 border-gray-200 rounded-xl hover:shadow-lg hover:border-blue-300 transition-all duration-300 animate-slideInRight"
+                className="flex items-center space-x-4 p-4 bg-[#fffdf7] border border-[#dedbd1] rounded-xl hover:shadow-md hover:border-[#1d4d3e]/40 transition-all duration-300 animate-slideInRight"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Thumbnail */}
@@ -377,7 +370,7 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
                   )}
 
                   <div className="flex items-center justify-between mt-1">
-                    <span className="font-bold text-blue-600">
+                    <span className="font-bold text-[#1d4d3e]">
                       {itemPrice(item)}
                     </span>
 
@@ -425,7 +418,7 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
 
         {/* Footer */}
         {cartItems.length > 0 && (
-          <div className="relative z-10 p-6 border-t border-gray-200 bg-white/80 backdrop-blur-md flex-shrink-0">
+          <div className="relative z-10 p-6 border-t border-[#dedbd1] bg-[#fffdf7] flex-shrink-0">
             <div className="space-y-2 mb-6">
               <div className="flex justify-between text-gray-600 font-medium">
                 <span>Estimated Total</span>
@@ -434,7 +427,7 @@ const CartSidebarLayout = forwardRef(({ children }, ref) => {
             </div>
 
             <Link to="/checkout">
-              <button className="w-full bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 hover:from-blue-600 hover:via-purple-700 hover:to-pink-600 text-white py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center space-x-2 group shadow-lg">
+              <button className="w-full bg-[#1d4d3e] hover:bg-[#153a30] text-white py-4 rounded-xl font-bold text-lg transition-colors duration-300 flex items-center justify-center space-x-2 group shadow-md">
                 <CreditCard className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 <span>Proceed to Checkout</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

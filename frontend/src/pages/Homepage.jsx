@@ -3,7 +3,7 @@ import ProductCard, {
   ProductCardSkeleton,
 } from "../components/layout/ProductCard";
 import CartBar from "../components/layout/CartBar.jsx";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../config/api";
 
@@ -12,22 +12,19 @@ const VISIBLE_COUNT = 5;
 
 const sectionMeta = {
   recent: {
-    gradient: "from-violet-600 to-indigo-500",
-    badge: "bg-violet-100 text-violet-700",
-    dot: "bg-violet-500",
-    accent: "#7c3aed",
+    badge: "bg-[#e9e4d8] text-[#1d4d3e]",
+    dot: "bg-[#1d4d3e]",
+    accent: "#1d4d3e",
   },
   nearby: {
-    gradient: "from-emerald-500 to-teal-500",
-    badge: "bg-emerald-100 text-emerald-700",
-    dot: "bg-emerald-500",
-    accent: "#059669",
+    badge: "bg-[#e9e4d8] text-[#1d4d3e]",
+    dot: "bg-[#1d4d3e]",
+    accent: "#1d4d3e",
   },
   rent: {
-    gradient: "from-amber-500 to-orange-500",
-    badge: "bg-amber-100 text-amber-700",
-    dot: "bg-amber-500",
-    accent: "#d97706",
+    badge: "bg-[#f4e6df] text-[#a34f35]",
+    dot: "bg-[#d66b4a]",
+    accent: "#d66b4a",
   },
 };
 
@@ -94,9 +91,7 @@ const ProductSection = ({
       {/* Header */}
       <div className="flex items-end justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div
-            className={`w-1 h-10 rounded-full bg-gradient-to-b ${meta.gradient}`}
-          />
+          <div className="w-1 h-10 rounded-full bg-[#1d4d3e]" />
           <div>
             <span
               className={`text-xs font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full ${meta.badge} mb-1 inline-block`}
@@ -315,34 +310,48 @@ const HomePage = () => {
 
   return (
     <CartBar ref={cartRef}>
-      <div className="min-h-screen bg-gray-50">
-        {/* Hero Banner */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-violet-700 via-indigo-700 to-sky-600 px-6 py-14 mb-12">
-          <div
-            className="absolute inset-0 opacity-10"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)",
-              backgroundSize: "40px 40px",
-            }}
-          />
-          <div className="relative container mx-auto max-w-3xl text-center">
-            <span className="inline-block bg-white/20 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4">
-              Community Marketplace
-            </span>
-            <h1 className="text-4xl md:text-5xl font-black text-white leading-tight mb-4">
-              Buy, Sell &amp; Rent
-              <br />
-              <span className="text-yellow-300">Anything, Anywhere</span>
-            </h1>
-            <p className="text-indigo-200 text-lg mb-8">
-              Discover deals in your neighbourhood or list your items in
-              seconds.
-            </p>
+      <div className="min-h-screen bg-[#f5f2e9]">
+        <header className="mx-auto max-w-7xl px-5 pb-14 pt-12 sm:px-8 sm:pb-20 sm:pt-16">
+          <div className="grid items-end gap-10 border-b border-[#dedbd1] pb-12 md:grid-cols-[1.5fr_0.7fr] md:gap-16 md:pb-16">
+            <div>
+              <p className="mb-5 text-xs font-bold uppercase tracking-[0.24em] text-[#1d4d3e]">
+                A neighborhood marketplace
+              </p>
+              <h1 className="font-display max-w-4xl text-5xl font-medium leading-[0.98] tracking-[-0.055em] text-[#20332d] sm:text-7xl lg:text-[5.5rem]">
+                Good things,
+                <br />
+                <span className="text-[#d66b4a]">closer to home.</span>
+              </h1>
+            </div>
+            <div className="max-w-sm border-l-2 border-[#d66b4a] pl-5 md:mb-2">
+              <p className="text-base leading-7 text-[#66716a] sm:text-lg">
+                Find what you need, pass along what you don’t, and make more of
+                what’s already in your neighborhood.
+              </p>
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <Link
+                  to="/search"
+                  className="inline-flex items-center rounded-full bg-[#1d4d3e] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#153a30]"
+                >
+                  Explore the market <span className="ml-2" aria-hidden="true">↗</span>
+                </Link>
+                <Link
+                  to="/sell"
+                  className="px-2 py-3 text-sm font-semibold text-[#1d4d3e] underline decoration-[#d66b4a] underline-offset-4 hover:text-[#d66b4a]"
+                >
+                  Start selling
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
+          <div className="mt-5 flex flex-wrap gap-x-8 gap-y-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#66716a]">
+            <span>Buy thoughtfully</span>
+            <span>Sell simply</span>
+            <span>Rent nearby</span>
+          </div>
+        </header>
 
-        <main className="container mx-auto px-6 pb-16">
+        <main className="mx-auto max-w-7xl px-5 pb-16 sm:px-8">
           {sectionConfigs.map((section) => (
             <ProductSection
               key={section.key}

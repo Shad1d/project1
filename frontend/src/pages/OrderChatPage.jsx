@@ -644,7 +644,7 @@ function MessageBubble({ message, isOwn }) {
       <div
         className={`max-w-[78%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
           isOwn
-            ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-br-sm"
+            ? "bg-[#1d4d3e] text-white rounded-br-sm"
             : "bg-white border border-gray-200 text-gray-800 rounded-bl-sm"
         }`}
       >
@@ -998,7 +998,7 @@ export default function OrderChatPage() {
         {/* Other party info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[#1d4d3e] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
               {otherName?.[0]?.toUpperCase() || "?"}
             </div>
             <div className="min-w-0">
@@ -1127,7 +1127,7 @@ export default function OrderChatPage() {
                 <button
                   onClick={handleSend}
                   disabled={!inputText.trim() || sending}
-                  className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 text-white flex items-center justify-center flex-shrink-0 transition-all shadow-md"
+                  className="w-10 h-10 rounded-full bg-[#1d4d3e] hover:bg-[#153a30] disabled:opacity-50 text-white flex items-center justify-center flex-shrink-0 transition-all shadow-md"
                 >
                   {sending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

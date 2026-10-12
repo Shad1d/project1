@@ -216,7 +216,7 @@ function OrderCard({ order, onAction, actionLoadingId }) {
           {isActive && (
             <Link
               to={`/chat/order/${order._id}`}
-              className="flex-1 min-w-[120px] py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm"
+              className="flex-1 min-w-[120px] py-2.5 bg-[#1d4d3e] hover:bg-[#153a30] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm"
             >
               <MessageSquare className="w-4 h-4" /> Open Chat
             </Link>
@@ -464,7 +464,7 @@ export default function SellerOrdersPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
+            <div className="p-2.5 bg-[#1d4d3e] rounded-xl">
               <Store className="w-5 h-5 text-white" />
             </div>
             <div>
